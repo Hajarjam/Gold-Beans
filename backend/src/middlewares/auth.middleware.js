@@ -1,0 +1,35 @@
+const jwt = require("jsonwebtoken");
+const userRepo = require("../repositories/user.repository");
+
+const authenticate = async (req, res, next) => {
+  const authHeader = req.headers.authorization;//Le frontend envoie le token dans le header HTTP 
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Token manquant" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await userRepo.findById(decoded.id);
+    if (!user) return res.status(401).json({ message: "User not found" });
+    req.user = { id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role };
+    next();
+  } catch (err) {
+    res.status(401).json({ message: "Invalid token" });
+  }
+};
+
+const isAdmin = (req, res, next) => {
+  if (req.user.role !== "admin") return res.status(403).json({ error: "Accès interdit" });
+  next();
+};
+
+module.exports = { authenticate, isAdmin };
+
+
+/* Il sert à protéger les routes :
+
+vérifier si l’utilisateur est connecté
+
+vérifier s’il est admin */
