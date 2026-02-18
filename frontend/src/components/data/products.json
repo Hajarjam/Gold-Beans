@@ -1,0 +1,32 @@
+{
+  "products": [
+    {
+      "id": "coffee-001",
+      "title": "Law Breakers – Espresso Blend",
+      "price": 115,
+      "image": "./assets/lawbreakers.jpg",
+      "isBestSeller": true
+    },
+    {
+      "id": "coffee-002",
+      "title": "Ethiopia – Amity Brothers",
+      "price": 120,
+      "image": "./assets/amitybrothers.jpg",
+      "isBestSeller": true
+    },
+    {
+      "id": "coffee-003",
+      "title": "Colombian Brew Coffee",
+      "price": 110,
+      "image": "./assets/columbianbrewcoffee.jpg",
+      "isBestSeller": true
+    },
+    {
+      "id": "coffee-004",
+      "title": "Kenya AA – Nyeri",
+      "price": 130,
+      "image": "./assets/amitybrothers.jpg",
+      "isBestSeller": false
+    }
+  ]
+}

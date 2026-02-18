@@ -1,1 +1,0 @@
-const Coffee = require("../models/coffee.model");

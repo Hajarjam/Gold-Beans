@@ -1,6 +1,11 @@
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 async function handleResponse(response) {
+  /*Son rôle :
+
+regarder si le backend dit OK
+
+sinon → afficher une erreur claire */
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.error || data.message || "Erreur API");
@@ -11,11 +16,12 @@ async function handleResponse(response) {
 const publicApi = {
   // Login
   login: async ({ email, password }) => {
-    return handleResponse(
-      await fetch(`${API_BASE_URL}/login`, {
+    return handleResponse(//“Je vais envoyer une requête au backend, puis je traite la réponse avec handleResponse”.
+      await fetch(`${API_BASE_URL}/login`, {//On envoie une requête à :url de backend
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        headers: { "Content-Type": "application/json" },//Je t’envoie des données en format JSON”.
+        body: JSON.stringify({ email, password }),//On transforme les données JavaScript en texte JSON.
+        
       })
     );
   },
@@ -29,10 +35,22 @@ const publicApi = {
         body: JSON.stringify({
           firstName, lastName, email, password, passwordConfirmation,
           role
-        }),
+        }),//On transforme les données JavaScript en texte JSON.
       })
     );
   },
+
+  /*Quand React envoie une requête POST, il doit envoyer des données au backend.
+
+Exemple : formulaire d’inscription
+
+prénom
+
+email
+
+mot de passe
+
+👉 Ces données sont envoyées dans le body (le “contenu” de la requête). */
 
   // Activate account
   activateAccount: async (token) => {
@@ -53,12 +71,12 @@ const publicApi = {
   },
 
   // Reset password
-  resetPassword: async (token, password,passwordConfirmation) => {
+  resetPassword: async (token, password, passwordConfirmation) => {
     return handleResponse(
       await fetch(`${API_BASE_URL}/reset-password/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password,passwordConfirmation }),
+        body: JSON.stringify({ password, passwordConfirmation }),
       })
     );
   },
@@ -91,25 +109,25 @@ const publicApi = {
     // Si ton backend ne gère pas de logout, juste supprimer le token côté frontend
     return true;
   },
-
-  getProducts: async () => {
-    const res = await fetch(`${API_BASE_URL}/home`);
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || "Erreur lors de la récupération des produits");
+  /*
+    getProducts: async () => {
+      const res = await fetch(`${API_BASE_URL}/home`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Erreur lors de la récupération des produits");
+      }
+      return res.json();
+    },
+  
+    getProductDetails: async (id) => {
+      const res = await fetch(`${API_BASE_URL}/product-details/${id}`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Produit non trouvé");
+      }
+      return res.json();
     }
-    return res.json();
-  },
-
-  getProductDetails: async (id) => {
-    const res = await fetch(`${API_BASE_URL}/product-details/${id}`);
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || "Produit non trouvé");
-    }
-    return res.json();
-  }
-
+  */
 };
 
 export default publicApi;

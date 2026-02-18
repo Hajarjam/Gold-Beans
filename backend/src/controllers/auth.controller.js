@@ -2,10 +2,10 @@ const authService = require("../services/auth.service");
 
 const register = async (req, res, next) => {
   try {
-    const { firstName, lastName, email, password, role, extraData } = req.body;
-    const createdBy = req.user?._id || null;
+    const { firstName, lastName, email, password, role, extraData } = req.body;//const { firstName, lastName, email, password, role, extraData } = req.body;
+    const createdBy = req.user?._id || null; // Qui a créé le compte ? 
     await authService.register({ firstName, lastName, email, password, role, extraData, createdBy });
-    res.status(201).json({ message: "Account created. Check your email for activation." });
+    res.status(201).json({ message: "Compte créé. Vérifiez votre email pour l'activation." });
   } catch (err) {
     next(err);
   }
@@ -14,7 +14,7 @@ const register = async (req, res, next) => {
 const activateAccount = async (req, res, next) => {
   try {
     await authService.activateAccount(req.params.token);
-    res.json({ message: "Account activated!" });
+    res.json({ message: "Compte activé !" });
   } catch (err) {
     next(err); 
   }
@@ -35,7 +35,7 @@ const login = async (req, res, next) => {
 const forgotPassword = async (req, res, next) => {
   try {
     await authService.forgotPassword(req.body.email);
-    res.json({ message: "Password reset email sent!" });
+    res.json({ message: "Email de réinitialisation envoyé !" });
   } catch (err) {
     next(err); 
   }
@@ -44,7 +44,7 @@ const forgotPassword = async (req, res, next) => {
 const resetPassword = async (req, res, next) => {
   try {
     await authService.resetPassword(req.params.token, req.body.password);
-    res.json({ message: "Password reset successfully!" });
+    res.json({ message: "Mot de passe réinitialisé !" });
   } catch (err) {
     next(err); 
   }
