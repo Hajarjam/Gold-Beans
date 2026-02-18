@@ -1,14 +1,9 @@
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 async function handleResponse(response) {
-  /*Son rôle :
-
-regarder si le backend dit OK
-
-sinon → afficher une erreur claire */
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.error || data.message || "Erreur API");
+    throw new Error(data.error || data.message || "API Error");
   }
   return data;
 }
@@ -17,10 +12,10 @@ const publicApi = {
   // Login
   login: async ({ email, password }) => {
     return handleResponse(//“Je vais envoyer une requête au backend, puis je traite la réponse avec handleResponse”.
-      await fetch(`${API_BASE_URL}/login`, {//On envoie une requête à :url de backend
+      await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },//Je t’envoie des données en format JSON”.
-        body: JSON.stringify({ email, password }),//On transforme les données JavaScript en texte JSON.
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
         
       })
     );
@@ -35,22 +30,11 @@ const publicApi = {
         body: JSON.stringify({
           firstName, lastName, email, password, passwordConfirmation,
           role
-        }),//On transforme les données JavaScript en texte JSON.
+        }),
       })
     );
   },
 
-  /*Quand React envoie une requête POST, il doit envoyer des données au backend.
-
-Exemple : formulaire d’inscription
-
-prénom
-
-email
-
-mot de passe
-
-👉 Ces données sont envoyées dans le body (le “contenu” de la requête). */
 
   // Activate account
   activateAccount: async (token) => {
@@ -104,30 +88,52 @@ mot de passe
     );
   },
 
-  // Logout (optionnel, peut être vide côté API)
+  // Logout
   logout: async (token) => {
-    // Si ton backend ne gère pas de logout, juste supprimer le token côté frontend
     return true;
   },
-  /*
-    getProducts: async () => {
-      const res = await fetch(`${API_BASE_URL}/home`);
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Erreur lors de la récupération des produits");
-      }
-      return res.json();
-    },
-  
-    getProductDetails: async (id) => {
-      const res = await fetch(`${API_BASE_URL}/product-details/${id}`);
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Produit non trouvé");
-      }
-      return res.json();
-    }
-  */
+
+  // Get Products (Coffees)
+  getProducts: async () => {
+    return handleResponse(
+      await fetch(`${API_BASE_URL}/home`)
+    );
+  },
+
+  // Get Coffee Details
+  getProductDetails: async (id) => {
+    return handleResponse(
+      await fetch(`${API_BASE_URL}/coffees/${id}`)
+    );
+  },
+
+  // Get Coffees
+  getCoffees: async () => {
+    return handleResponse(
+      await fetch(`${API_BASE_URL}/coffees`)
+    );
+  },
+
+  // Get Coffee by ID
+  getCoffeeById: async (id) => {
+    return handleResponse(
+      await fetch(`${API_BASE_URL}/coffees/${id}`)
+    );
+  },
+
+  // Get Machines
+  getMachines: async () => {
+    return handleResponse(
+      await fetch(`${API_BASE_URL}/machines`)
+    );
+  },
+
+  // Get Machine Details by ID
+  getMachineById: async (id) => {
+    return handleResponse(
+      await fetch(`${API_BASE_URL}/machines/${id}`)
+    );
+  }
 };
 
 export default publicApi;

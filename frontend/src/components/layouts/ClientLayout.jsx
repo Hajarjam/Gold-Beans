@@ -1,5 +1,5 @@
-import NavbarC from "./NavbarC";
-import Footer from "./Footer";
+import Navbar from "../common/Navbar";
+import Footer from "../common/Footer";
 import { useNavigate } from "react-router-dom"; 
 import productsData from "../../components/data/products.json";
 
@@ -10,7 +10,7 @@ export default function ClientLayout() {
       const navigate = useNavigate();
     return (
         <div className="min-h-screen flex flex-col">
-            <NavbarC />
+            <Navbar />
 
 
 

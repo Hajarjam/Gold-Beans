@@ -21,8 +21,18 @@ export default function ProtectedRoute({ children, requiredRole = null }) {
   }
 
 
-  if (requiredRole && role !== requiredRole) {
-    return <Navigate to="/" replace />;
+  if (requiredRole) {
+    // Client routes: allow "client", "user", or missing role (treat as client)
+    const allowedRoles =
+      requiredRole === "client"
+        ? ["client", "user"]
+        : Array.isArray(requiredRole)
+          ? requiredRole
+          : [requiredRole];
+    const roleToCheck = role ?? "client";
+    if (!allowedRoles.includes(roleToCheck)) {
+      return <Navigate to="/" replace />;
+    }
   }
 
 
