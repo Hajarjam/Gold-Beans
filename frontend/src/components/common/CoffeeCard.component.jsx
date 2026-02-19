@@ -5,19 +5,25 @@ export default function CoffeeCard({ coffee }) {
   const imageUrl = "/assets/columbianbrewcoffee.jpg";
   
   return (
-    <Link to={`/coffees/${coffee._id}`}>
-    <div className="border w-fit bg-white rounded-lg flex flex-col gap-2 hover:shadow-lg transition">
-      <img
-        src={imageUrl}
-        alt={coffee.name}
-        className="w-[200px] h-40 lg:h-[200px] lg:w-[600px] object-cover rounded-t-lg"
-      />
-      <div className="pt-4 pb-2 px-2">
+    <Link to={`/coffees/${coffee._id}`} className="block">
+    <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+      <div className="h-52 w-full overflow-hidden bg-gray-100">
+        <img
+          src={imageUrl}
+          alt={coffee.name}
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <div className="p-4">
         <div className="flex flex-col">
-          <h2 className="font-semibold text-lg text-brown font-instrument-sans">{coffee.name}</h2>
-          <p className="text-md font-semibold mt-1">${coffee.price.toFixed(2)}</p>
+          <h2 className="font-instrument-sans font-bold text-base text-brown mb-1">
+            {coffee.name}
+          </h2>
+          <p className="font-instrument-sans font-semibold text-sm text-charcoal mb-1">
+            ${coffee.price.toFixed(2)}
+          </p>
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="font-instrument-sans text-xs text-gray-500">
           <p>{coffee.roastLevel}</p>
           <p>{coffee.tasteProfile?.join(", ")}</p>
           <p>Intensity: {coffee.intensity}/5</p>

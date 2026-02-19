@@ -9,6 +9,10 @@ import { Link } from 'react-router-dom';
 
 function ProductCart() {
   const { items, removeFromCart, updateQty } = useContext(CartContext);
+  const getProductLink = (item) => {
+    const inferredType = item.productType || (item.grind || item.size || item.purchaseType ? 'coffee' : 'machine');
+    return inferredType === 'coffee' ? `/coffees/${item._id}` : `/machine/${item._id}`;
+  };
 
   return (
     <>
@@ -37,18 +41,22 @@ function ProductCart() {
                       <div className="p-6 sm:p-8 flex flex-col sm:flex-row gap-6">
                         {/* Image */}
                         <div className="w-full sm:w-32 md:w-40 flex-shrink-0">
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="w-full h-auto object-cover rounded-lg"
-                          />
+                          <Link to={getProductLink(item)} className="block">
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-full h-auto object-cover rounded-lg hover:opacity-90 transition-opacity"
+                            />
+                          </Link>
                         </div>
 
                         {/* Details */}
                         <div className="flex-1 flex flex-col">
                           <div className="flex justify-between items-start mb-3">
                             <div>
-                              <h3 className="text-xl font-semibold">{item.name}</h3>
+                              <Link to={getProductLink(item)} className="hover:underline">
+                                <h3 className="text-xl font-semibold">{item.name}</h3>
+                              </Link>
                               {item.size && <p className="text-sm text-gray-500">{item.size}</p>}
                               {item.grind && <p className="text-sm text-gray-500">Grind: {item.grind}</p>}
                             </div>

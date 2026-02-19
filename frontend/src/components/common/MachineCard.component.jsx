@@ -4,25 +4,31 @@ export default function MachineCard({ machine }) {
   const imageUrl = machine.images?.[0] || "/assets/columbianbrewcoffee.jpg";
   
   return (
-    <Link to={`/machine/${machine._id}`}>
-      <div className="border w-fit bg-white rounded-lg flex flex-col gap-2 hover:shadow-lg transition">
-        <img
-          src={imageUrl}
-          alt={machine.name}
-          className="w-[200px] h-40 lg:h-[200px] lg:w-[600px] object-cover rounded-t-lg "
-        />
-        <div className="pt-4 pb-2 px-2">
+    <Link to={`/machine/${machine._id}`} className="block">
+      <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+        <div className="h-52 w-full overflow-hidden bg-gray-100">
+          <img
+            src={imageUrl}
+            alt={machine.name}
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="p-4">
           <div className="flex flex-col ">
-            <h2 className="font-semibold text-lg text-brown">{machine.name}</h2>
-            <p className="text-md font-semibold mt-1">${machine.price.toFixed(2)}</p>
+            <h2 className="font-instrument-sans font-bold text-base text-brown mb-1">
+              {machine.name}
+            </h2>
+            <p className="font-instrument-sans font-semibold text-sm text-charcoal mb-1">
+              ${machine.price.toFixed(2)}
+            </p>
           </div>
 
-          <div>
-            <p className="text-sm text-gray-500">{machine.brand}</p>
-            <p className="text-sm text-gray-500">
+          <div className="font-instrument-sans text-xs text-gray-500">
+            <p>{machine.brand}</p>
+            <p>
               {machine.type}
             </p>
-            <p className="text-sm text-gray-500">Power: {machine.power}W</p>            
+            <p>Power: {machine.power}W</p>            
           </div>
         </div>
       </div>

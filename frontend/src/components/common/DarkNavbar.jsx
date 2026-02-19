@@ -2,12 +2,15 @@ import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../../contexts/AuthContext";
+import CartContext from "../../contexts/CartContext";
 import LogoutButton from "../common/LogoutButton";
 
 export default function DarkNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { isAuthenticated } = useContext(AuthContext);
+  const { items } = useContext(CartContext);
+  const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
 
   const menuItems = [
     { name: "Our coffee", link: "/coffees" },
@@ -65,9 +68,14 @@ export default function DarkNavbar() {
             </Link>
             <Link
               to="/cart"
-              className="w-10 h-10 rounded-full border border-brown flex items-center justify-center hover:bg-brown/20 transition"
+              className="relative w-10 h-10 rounded-full border border-brown flex items-center justify-center hover:bg-brown/20 transition"
               title="Cart"
             >
+              {totalQty > 0 && (
+                <span className="absolute -top-2 -right-2 min-w-5 h-5 px-1 rounded-full bg-brown text-white text-[10px] font-semibold leading-none flex items-center justify-center">
+                  {totalQty > 99 ? "99+" : totalQty}
+                </span>
+              )}
               <svg className="w-5 h-5 text-brown" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM7.2 6l.3 2h10.9c.6 0 1.1.4 1.2 1l.9 5.1c.1.7-.4 1.4-1.2 1.4H8.1c-.6 0-1.1-.4-1.2-1L5.3 4H3V2h3.1c.6 0 1.1.4 1.2 1l.3 1H21v2H7.2z" />
               </svg>
