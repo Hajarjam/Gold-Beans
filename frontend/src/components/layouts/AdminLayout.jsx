@@ -1,58 +1,14 @@
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, Outlet, useLocation} from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
+
+import LogoutButton from "../common/LogoutButton";
 
 const API_URL = process.env.REACT_APP_API_URLL;
 
-// Icons (tu gardes les tiens)
-const DashboardIcon = (props) => (
-  <svg {...props} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4a2 2 0 01-2-2V12H9v7a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-  </svg>
-);
-const UsersIcon = (props) => (
-  <svg {...props} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-4a4 4 0 110-8 4 4 0 010 8z" />
-  </svg>
-);
-const ProductsIcon = (props) => (
-  <svg {...props} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M18 8h1a3 3 0 010 6h-1m-2 4H6a4 4 0 01-4-4V6h18v8a4 4 0 01-4 4z" />
-  </svg>
-);
-const MachinesIcon = (props) => (
-  <svg {...props} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9 17h6m-7 4h8a2 2 0 002-2v-6a2 2 0 00-2-2H8a2 2 0 00-2 2v6a2 2 0 002 2zM9 7h6m-7 4h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v4a2 2 0 002 2z" />
-  </svg>
-);
-const OrdersIcon = (props) => (
-  <svg {...props} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18M3 12h18M3 17h18" />
-  </svg>
-);
-const SubscriptionIcon = (props) => (
-  <svg {...props} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <rect x="3" y="6" width="18" height="12" rx="2" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15 15l2 2 4-4" />
-  </svg>
-);
-const LogoutIcon = (props) => (
-  <svg {...props} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
-  </svg>
-);
-
-const MenuIcon = (props) => (
-  <svg {...props} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-  </svg>
-);
 
 export default function AdminLayout() {
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
 
-  const [showLogoutAlert, setShowLogoutAlert] = useState(false);
+  const { pathname } = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [form, setForm] = useState({ firstName: "", lastName: "" });
 
@@ -66,11 +22,7 @@ export default function AdminLayout() {
         });
         const data = await r.json().catch(() => ({}));
         if (!r.ok) throw new Error(data.message || "Erreur /me");
-
-        setForm({
-          firstName: data.firstName || "",
-          lastName: data.lastName || "",
-        });
+        setForm({ firstName: data.firstName || "", lastName: data.lastName || "" });
       } catch (e) {
         console.error(e);
       }
@@ -81,7 +33,7 @@ export default function AdminLayout() {
   const initials = useMemo(() => {
     const a = (form.firstName || "").trim().slice(0, 1).toUpperCase();
     const b = (form.lastName || "").trim().slice(0, 1).toUpperCase();
-    return (a + b) || "AD";
+    return a + b || "AD";
   }, [form.firstName, form.lastName]);
 
   const isActive = (to) => pathname === to || pathname.startsWith(to + "/");
@@ -94,12 +46,6 @@ export default function AdminLayout() {
     { label: "Orders", to: "/admin/orders", Icon: OrdersIcon },
     { label: "Subscription", to: "/admin/subscription", Icon: SubscriptionIcon },
   ];
-
-  const logoutNow = () => {
-    localStorage.removeItem("authToken");
-    setShowLogoutAlert(false);
-    navigate("/");
-  };
 
   const SidebarContent = ({ onNavigate }) => (
     <div className="rounded-3xl border border-[#EADFD7] bg-white shadow-sm p-4 flex flex-col h-full">
@@ -142,20 +88,17 @@ export default function AdminLayout() {
         })}
       </nav>
 
-      {/* Logout */}
-      <button
-        onClick={() => {
-          onNavigate?.();
-          setShowLogoutAlert(true);
-        }}
+      {/* Logout — uses LogoutButton with icon+label as children */}
+      <LogoutButton
+        redirectTo="/login"
+        onBeforeOpen={() => onNavigate?.()}
         className="mt-auto flex items-center gap-3 px-3 py-2.5 rounded-2xl text-[#3B170D]/80 hover:bg-red-50 hover:text-red-700 transition"
-        type="button"
       >
         <span className="w-9 h-9 rounded-xl grid place-items-center bg-[#F6EEE7] border border-[#EADFD7]">
           <LogoutIcon className="w-5 h-5" />
         </span>
         <span className="font-semibold">Log Out</span>
-      </button>
+      </LogoutButton>
     </div>
   );
 
@@ -171,12 +114,7 @@ export default function AdminLayout() {
       {/* MOBILE DRAWER */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-[999] lg:hidden">
-          {/* overlay */}
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-          {/* drawer */}
+          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileMenuOpen(false)} />
           <div className="absolute left-0 top-0 h-full w-[290px] p-4">
             <SidebarContent onNavigate={() => setMobileMenuOpen(false)} />
           </div>
@@ -189,7 +127,6 @@ export default function AdminLayout() {
           {/* TOPBAR */}
           <div className="h-16 lg:h-20 px-4 lg:px-6 flex items-center justify-between border-b border-[#EADFD7]">
             <div className="flex items-center gap-3">
-              {/* mobile menu btn */}
               <button
                 className="lg:hidden w-10 h-10 rounded-2xl border border-[#EADFD7] bg-[#F6EEE7] grid place-items-center"
                 onClick={() => setMobileMenuOpen(true)}
@@ -198,7 +135,6 @@ export default function AdminLayout() {
               >
                 <MenuIcon className="w-6 h-6 text-[#3B170D]" />
               </button>
-
               <div className="leading-tight">
                 <div className="text-base sm:text-lg lg:text-xl font-extrabold">
                   Hello {form.firstName} {form.lastName}
@@ -229,35 +165,49 @@ export default function AdminLayout() {
             <Outlet />
           </div>
         </div>
-
-        {/* LOGOUT MODAL */}
-        {showLogoutAlert && (
-          <div className="fixed inset-0 bg-black/40 z-[999] flex items-center justify-center px-4">
-            <div className="w-full max-w-sm rounded-2xl bg-white border border-[#EADFD7] p-6 shadow-xl">
-              <h3 className="text-lg font-extrabold text-[#3B170D]">Logout</h3>
-              <p className="mt-2 text-sm text-[#3B170D]/70">
-                Are you sure you want to logout?
-              </p>
-
-              <div className="mt-6 flex justify-end gap-3">
-                <button
-                  onClick={() => setShowLogoutAlert(false)}
-                  className="px-4 py-2 rounded-xl border border-[#EADFD7] hover:bg-[#F6EEE7] transition"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  onClick={logoutNow}
-                  className="px-4 py-2 rounded-xl bg-[#3B170D] text-white hover:opacity-90 transition"
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </main>
     </div>
   );
 }
+const DashboardIcon = (props) => (
+  <svg {...props} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4a2 2 0 01-2-2V12H9v7a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+  </svg>
+);
+const UsersIcon = (props) => (
+  <svg {...props} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-4a4 4 0 110-8 4 4 0 010 8z" />
+  </svg>
+);
+const ProductsIcon = (props) => (
+  <svg {...props} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M18 8h1a3 3 0 010 6h-1m-2 4H6a4 4 0 01-4-4V6h18v8a4 4 0 01-4 4z" />
+  </svg>
+);
+const MachinesIcon = (props) => (
+  <svg {...props} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 17h6m-7 4h8a2 2 0 002-2v-6a2 2 0 00-2-2H8a2 2 0 00-2 2v6a2 2 0 002 2zM9 7h6m-7 4h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v4a2 2 0 002 2z" />
+  </svg>
+);
+const OrdersIcon = (props) => (
+  <svg {...props} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 7h18M3 12h18M3 17h18" />
+  </svg>
+);
+const SubscriptionIcon = (props) => (
+  <svg {...props} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <rect x="3" y="6" width="18" height="12" rx="2" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 15l2 2 4-4" />
+  </svg>
+);
+const LogoutIcon = (props) => (
+  <svg {...props} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+  </svg>
+);
+const MenuIcon = (props) => (
+  <svg {...props} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+  </svg>
+);

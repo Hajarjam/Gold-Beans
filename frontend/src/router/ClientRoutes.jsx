@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import ClientLayout from "../components/layouts/ClientLayout";
 import ProtectedRoute from "./ProtectedRoutes";
+import HomePage from "../pages/public/HomePage";
 
 
 export default function ClientRoutes() {
@@ -10,7 +11,7 @@ export default function ClientRoutes() {
         path="/"
         element={
           <ProtectedRoute requiredRole="client">
-            <ClientLayout />
+            <HomePage />
           </ProtectedRoute>
         }
       ></Route>
