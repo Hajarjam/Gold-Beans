@@ -20,6 +20,7 @@ export default function AdminRoutes() {
           </ProtectedRoute>
         }
       >
+        {/*<Route index element={<HomePage />} /> */}
         {/* <Route path="dashboard" element={<AdminDashboard />} /> */}
         <Route path="coffees" element={<Coffees />} />
         <Route path="machines" element={<Machines />} />
