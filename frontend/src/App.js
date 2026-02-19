@@ -5,11 +5,7 @@ import AuthProvider from "./contexts/AuthProvider";
 import ClientRoutes from "./router/ClientRoutes";
 import { CartProvider } from "./contexts/CartProvider";
 import BreadcrumbProvider from "./contexts/BreadcrumbContext";
-import ProtectedRoute from "./router/ProtectedRoutes";
-import AdminLayout from "./components/layouts/AdminLayout";
-/* import AdminDashboard from "./pages/admin/AdminDashboard"; */
-import Coffees from "./pages/admin/products/Coffees";
-import Machines from "./pages/admin/products/Machines";
+import AdminRoutes from "./router/AdminRoutes";
 //import { Toaster } from 'react-hot-toast';
 import "@fontsource/instrument-serif";
 import "@fontsource/instrument-sans";
@@ -24,21 +20,8 @@ function App() {
             <Routes>
               <Route path="/*" element={<PublicRoutes />} />
               <Route path="/client/*" element={<ClientRoutes />} />
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute requiredRole="admin">
-                    <AdminLayout />
-                  </ProtectedRoute>
-                }
-              >
-                {/* Default: /admin → /admin/dashboard */}
-{/*                 <Route index element={<AdminDashboard />} /> */}
-                {/* Explicit /admin/dashboard route */}
-{/*                 <Route path="dashboard" element={<AdminDashboard />} /> */}
-                <Route path="coffees" element={<Coffees />} />
-                <Route path="machines" element={<Machines />} />
-              </Route>
+              <Route path="/admin/*" element={<AdminRoutes />} />
+              
             </Routes>
           </BreadcrumbProvider>
         </CartProvider>
