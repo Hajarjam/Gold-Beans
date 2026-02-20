@@ -36,7 +36,11 @@ export default function Navbar() {
             key={item.name}
             className="hover:text-peach cursor-pointer font-instrument-sans transition"
           >
-            <a href={item.link}>{item.name}</a>
+            {item.link.startsWith("/") ? (
+              <Link to={item.link}>{item.name}</Link>
+            ) : (
+              <a href={item.link}>{item.name}</a>
+            )}
           </div>
         ))}
       </div>
@@ -74,7 +78,7 @@ export default function Navbar() {
               </svg>
             </Link>
             <Link
-              to="/cart"
+              to="/client/cart"
               className="relative w-10 h-10 rounded-full border border-white flex items-center justify-center hover:bg-white/20 transition"
               title="Cart"
             >
@@ -117,7 +121,11 @@ export default function Navbar() {
               key={item.name}
               className="text-white hover:text-gray-300 cursor-pointer transition"
             >
-              <a href={item.link}>{item.name}</a>
+              {item.link.startsWith("/") ? (
+                <Link to={item.link}>{item.name}</Link>
+              ) : (
+                <a href={item.link}>{item.name}</a>
+              )}
             </div>
           ))}
           {!isAuthenticated ? (
@@ -149,7 +157,7 @@ export default function Navbar() {
                 Dashboard
               </Link>
               <Link
-                to="/cart"
+                to="/client/cart"
                 className="px-6 py-2 bg-white text-black rounded-lg hover:bg-peach font-instrument-sans transition inline-flex items-center justify-center"
               >
                 Cart

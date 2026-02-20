@@ -22,11 +22,13 @@ export default function Breadcrumb({ compact = false }) {
       // This is the last segment (the ID)
       if (fullPathnames[0] === "coffees") return "/coffees";
       if (fullPathnames[0] === "machine") return "/machines";
+      if (fullPathnames[0] === "machines") return "/machines";
     }
     
     // For category pages
     if (segment === "coffees") return "/coffees";
     if (segment === "machine") return "/machines";
+    if (segment === "machines") return "/machines";
     
     // Default: join the path normally
     return `/${fullPathnames.slice(0, index + 1).join("/")}`;

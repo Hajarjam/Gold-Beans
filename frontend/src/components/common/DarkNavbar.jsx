@@ -14,7 +14,7 @@ export default function DarkNavbar() {
 
   const menuItems = [
     { name: "Our coffee", link: "/coffees" },
-    { name: "Our machines", link: "/Machines" },
+    { name: "Our machines", link: "/machines" },
     { name: "Subscribe", link: "#" },
   ];
 
@@ -29,7 +29,11 @@ export default function DarkNavbar() {
       <div className="hidden md:flex gap-6 lg:gap-8 ml-auto">
         {menuItems.map((item) => (
           <div key={item.name} className="hover:text-peach cursor-pointer font-instrument-sans transition">
-            <a href={item.link}>{item.name}</a>
+            {item.link.startsWith("/") ? (
+              <Link to={item.link}>{item.name}</Link>
+            ) : (
+              <a href={item.link}>{item.name}</a>
+            )}
           </div>
         ))}
       </div>
@@ -39,13 +43,13 @@ export default function DarkNavbar() {
         {!isAuthenticated ? (
           <>
             <Link
-              to="/Login"
+              to="/login"
               className="px-6 py-2 bg-brown text-white rounded-lg hover:bg-peach hover:text-brown font-instrument-sans transition inline-flex items-center justify-center"
             >
               Log In
             </Link>
             <Link
-              to="/Signup"
+              to="/register"
               className="px-4 py-2 h-10 border border-brown text-brown rounded-lg hover:bg-brown hover:text-white font-instrument-sans transition inline-flex items-center justify-center"
             >
               Sign Up
@@ -67,7 +71,7 @@ export default function DarkNavbar() {
               </svg>
             </Link>
             <Link
-              to="/cart"
+              to="/client/cart"
               className="relative w-10 h-10 rounded-full border border-brown flex items-center justify-center hover:bg-brown/20 transition"
               title="Cart"
             >
@@ -98,15 +102,19 @@ export default function DarkNavbar() {
         <div className="absolute top-full left-0 w-full bg-peach-light/95 flex flex-col items-center gap-4 py-4 md:hidden">
           {menuItems.map((item) => (
             <div key={item.name} className="text-black hover:text-brown cursor-pointer transition">
-              <a href={item.link}>{item.name}</a>
+              {item.link.startsWith("/") ? (
+                <Link to={item.link}>{item.name}</Link>
+              ) : (
+                <a href={item.link}>{item.name}</a>
+              )}
             </div>
           ))}
           {!isAuthenticated ? (
             <>
-              <Link to="/Login" className="w-3/4 px-4 py-2 bg-brown text-white rounded-lg hover:bg-peach-dark transition text-center">
+              <Link to="/login" className="w-3/4 px-4 py-2 bg-brown text-white rounded-lg hover:bg-peach-dark transition text-center">
                 Log In
               </Link>
-              <Link to="/Signup" className="w-3/4 px-4 py-2 border border-brown text-brown rounded-lg hover:bg-brown hover:text-white transition text-center">
+              <Link to="/register" className="w-3/4 px-4 py-2 border border-brown text-brown rounded-lg hover:bg-brown hover:text-white transition text-center">
                 Sign Up
               </Link>
             </>
@@ -120,7 +128,7 @@ export default function DarkNavbar() {
               <Link to="/client/dashboard" className="w-3/4 px-4 py-2 bg-brown text-white rounded-lg hover:bg-peach-dark transition text-center">
                 Dashboard
               </Link>
-              <Link to="/cart" className="w-3/4 px-4 py-2 bg-brown text-white rounded-lg hover:bg-peach-dark transition text-center">
+              <Link to="/client/cart" className="w-3/4 px-4 py-2 bg-brown text-white rounded-lg hover:bg-peach-dark transition text-center">
                 Cart
               </Link>
             </>

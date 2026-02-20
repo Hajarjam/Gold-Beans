@@ -113,7 +113,7 @@ function OrderConfirmed() {
         <div className="mt-12 text-center space-x-6">
           
           <Link
-            to="HomePage"
+            to="/"
             className="bg-[#3d2b1f] text-white inline-block px-10 py-4 rounded-full font-medium text-lg hover:bg-[#2a1e16] transition"
           >
             Continue Shopping →

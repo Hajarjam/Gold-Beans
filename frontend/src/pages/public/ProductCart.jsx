@@ -17,7 +17,7 @@ function ProductCart() {
   return (
     <>
       <DarkNavbar />
-      <div className="bg-[#fdfaf7] min-h-screen py-20 px-4 sm:px-6 lg:px-8 text-gray-800 ">
+      <div className="bg-peach-light min-h-screen py-20 px-4 sm:px-6 lg:px-8 text-gray-800 ">
         <div className="max-w-6xl mx-auto">
           {/* Breadcrumb */}
           <Breadcrumb />
