@@ -112,7 +112,7 @@ export default function DarkNavbar() {
               <Link to="/client/dashboard" className="w-3/4 px-4 py-2 bg-brown text-white rounded-lg hover:bg-peach-dark transition text-center">
                 Dashboard
               </Link>
-              <Link to="/cart" className="w-3/4 px-4 py-2 bg-brown text-white rounded-lg hover:bg-peach-dark transition text-center">
+              <Link to="/client/cart" className="w-3/4 px-4 py-2 bg-brown text-white rounded-lg hover:bg-peach-dark transition text-center">
                 Cart
               </Link>
             </>

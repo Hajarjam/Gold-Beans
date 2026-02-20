@@ -20,7 +20,7 @@ export default function PublicRoutes() {
       <Route path="/coffees/:id" element={<CoffeeDetailPage />} />
       <Route path="/machines" element={<MachinePage />} />
       <Route path="/machine/:id" element={<MachineDetailPage />} />
-      <Route path="/cart" element={<ProductCart />} />
+      
       <Route path="Confirmed" element={<OrderConfirmed />} />
       <Route path="/login" element={<LoginPage />} />
     </Routes>

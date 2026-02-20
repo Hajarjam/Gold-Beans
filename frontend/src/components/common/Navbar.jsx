@@ -141,7 +141,7 @@ export default function Navbar() {
                 Dashboard
               </Link>
               <Link
-                to="/cart"
+                to="/client/cart"
                 className="px-6 py-2 bg-white text-black rounded-lg hover:bg-peach font-instrument-sans transition inline-flex items-center justify-center"
               >
                 Cart

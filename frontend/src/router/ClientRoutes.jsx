@@ -15,14 +15,7 @@ export default function ClientRoutes() {
           </ProtectedRoute>
         }
       ></Route>
-            <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute requiredRole="client">
-            
-          </ProtectedRoute>
-        }
-      />
+          
     </Routes>
   );
 }
