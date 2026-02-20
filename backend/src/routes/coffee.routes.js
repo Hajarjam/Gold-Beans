@@ -5,6 +5,7 @@ const coffeeController = require("../controllers/coffee.controller");
 const { uploadCoffeeImage } = require("../middlewares/upload.middleware");
 
 router.get("/", coffeeController.getAllCoffees);
+router.get("/best-sellers", coffeeController.getBestSellers);
 router.get("/:id", coffeeController.getCoffeeById);
 
 router.post(
