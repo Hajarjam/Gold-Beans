@@ -1,18 +1,36 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
-const clientSchema = new mongoose.Schema(
+const clientSchema = new mongoose.Schema( 
   {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },//ref: "User" → relation avec la collection users //required: true → un client DOIT être lié à un utilisateur
-    addresses: [
-      {
-        street: String,
-        city: String,
-        zip: String,
-        country: String,
-      }
-    ],
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    role: { type: String, enum: ["client", "admin"], default: "client" },
+    isActive: { type: Boolean, default: false },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
+    activationToken: String 
   },
-  { timestamps: true }
+  { timestamps: true } 
 );
 
-module.exports = mongoose.model("Client", clientSchema);
+clientSchema.pre("save", async function () {
+  if (!this.isModified("password")) return ;
+  this.password = await bcrypt.hash(this.password, 10);
+});
+
+
+clientSchema.methods.comparePassword = async function (password) { 
+  return bcrypt.compare(password, this.password);
+};
+
+clientSchema.methods.toJSON = function () { 
+  const user = this.toObject();
+  delete user.password;
+  return user;
+};
+
+const Client = mongoose.model("Client", clientSchema);
+module.exports = Client;

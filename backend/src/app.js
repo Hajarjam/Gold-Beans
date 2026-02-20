@@ -3,8 +3,9 @@ const publicRoutes = require("./routes/public.routes");
 const coffeeRoutes = require( "./routes/coffee.routes.js");
 const machinesRoutes = require( "./routes/machine.routes.js"); 
 const usersRoutes = require ("./routes/user.routes.js")
+const clientRoutes = require("./routes/client.routes");
+const subscriptionRoutes = require("./routes/subscription.routes");
 
-//const clientRoutes = require("./routes/client.routes");
 const errorHandler = require("./middlewares/error.middleware");
 const path = require("path");
 const app = express();
@@ -25,10 +26,9 @@ app.use("/api/coffees", coffeeRoutes);
 app.use("/api", publicRoutes);
 app.use("/api/machines", machinesRoutes);
 app.use("/api/users", usersRoutes);
-
-
+app.use('/api/subscriptions', subscriptionRoutes);
 //app.use("/api/admin", adminRoutes);
-//app.use("/api/client", clientRoutes);
+app.use("/api/client", clientRoutes);
 app.use(errorHandler);
 
 module.exports = app;  

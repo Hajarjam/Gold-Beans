@@ -1,89 +1,71 @@
-const User = require("../models/user.model");
+const userRepo = require("../repositories/user.repository");
 
-const getAllUsers = async ({ search = "", sort = "firstNameAsc", role = "" } = {}) => {
-  let users = await User.find(
-    role ? { role } : {}
-  ).select("firstName lastName email role isActive createdAt").lean();
+const normalizeRole = (role) => (role === "user" ? "client" : role);
 
-
-
-  // filter search
-  if (search) {
-    const s = String(search).toLowerCase();
-    users = users.filter((u) => {
-      const text = `${u.firstName || ""} ${u.lastName || ""} ${u.email || ""} ${u.role || ""}`.toLowerCase();
-      return text.includes(s);
-    });
-  }
-
-  // sort
-  const key =
-    sort === "lastNameAsc" || sort === "lastNameDesc" ? "lastName" : "firstName";
-  const dir = sort.endsWith("Desc") ? -1 : 1;
-
-  users.sort((a, b) => {
-    const A = (a[key] || "").toLowerCase();
-    const B = (b[key] || "").toLowerCase();
-    return A.localeCompare(B) * dir;
-  });
-
-  return users;
+const sanitize = (user) => {
+  if (!user) return user;
+  const obj = user.toObject ? user.toObject() : { ...user };
+  delete obj.password;
+  obj.role = normalizeRole(obj.role);
+  return obj;
 };
 
+const getAllUsers = async ({ search = "", role = "" } = {}) => {
+  const filter = role ? { role: normalizeRole(role) } : {};
+  let users = await userRepo.findAll(filter);
 
-const safeUser = "firstName lastName email role isActive createdAt updatedAt";
+  if (search) {
+    const s = String(search).toLowerCase();
+    users = users.filter((u) =>
+      `${u.firstName || ""} ${u.lastName || ""} ${u.email || ""} ${u.role || ""}`
+        .toLowerCase()
+        .includes(s)
+    );
+  }
+
+  return users.map(sanitize);
+};
 
 const getUserById = async (id) => {
-  const user = await User.findById(id).select(safeUser).lean();
-  if (!user) throw new Error("Utilisateur introuvable");
-  return user;
+  const user = await userRepo.findById(id);
+  if (!user) throw new Error("User introuvable");
+  return sanitize(user);
 };
 
 const createUser = async (payload) => {
-  if (!payload.email || !payload.password) throw new Error("Email et mot de passe requis");
+  const exists = await userRepo.findByEmail(payload.email);
+  if (exists) throw new Error("Email deja utilise");
 
-  const exists = await User.findOne({ email: payload.email });
-  if (exists) throw new Error("Email déjà utilisé");
-
-  // IMPORTANT: utiliser new User().save() pour déclencher le pre('save') qui hash le password
-  const user = new User({
+  const created = await userRepo.createUser({
     firstName: payload.firstName,
     lastName: payload.lastName,
     email: payload.email,
     password: payload.password,
-    role: payload.role || "client",
+    role: normalizeRole(payload.role || "client"),
     isActive: payload.isActive ?? true,
   });
 
-  await user.save();
-
-  const obj = user.toObject();
-  delete obj.password;
-  return obj;
+  return sanitize(created);
 };
 
 const updateUser = async (id, payload) => {
-  // on n'update pas le password ici (sinon faut re-hash)
-  const updated = await User.findByIdAndUpdate(
-    id,
-    {
-      firstName: payload.firstName,
-      lastName: payload.lastName,
-      email: payload.email,
-      role: payload.role,
-      isActive: payload.isActive,
-    },
-    { new: true, runValidators: true }
-  ).select("firstName lastName email role isActive createdAt");
+  const updates = {};
+  if (payload.firstName !== undefined) updates.firstName = payload.firstName;
+  if (payload.lastName !== undefined) updates.lastName = payload.lastName;
+  if (payload.email !== undefined) updates.email = payload.email;
+  if (payload.password !== undefined) updates.password = payload.password;
+  if (payload.role !== undefined) updates.role = normalizeRole(payload.role);
+  if (payload.isActive !== undefined) updates.isActive = payload.isActive;
 
+  const updated = await userRepo.updateUser(id, updates);
   if (!updated) throw new Error("User introuvable");
-  return updated;
+  return sanitize(updated);
 };
 
 const deleteUser = async (id) => {
-  const deleted = await User.findByIdAndDelete(id);
+  const deleted = await userRepo.deleteUser(id);
   if (!deleted) throw new Error("User introuvable");
   return true;
 };
 
-module.exports = { getAllUsers, createUser, updateUser, deleteUser, getUserById };
+module.exports = { getAllUsers, getUserById, createUser, updateUser, deleteUser };
