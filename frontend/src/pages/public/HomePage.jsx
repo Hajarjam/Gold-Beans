@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = process.env.REACT_APP_API_URLL|| "http://localhost:5001";
+const API_URL = process.env.REACT_APP_API_URLL;
 
 export default function HomePage() {
   const [bestSellers, setBestSellers] = useState([]);
@@ -126,8 +126,8 @@ export default function HomePage() {
               >
                 <div className="overflow-hidden rounded-t-2xl mb-4 sm:mb-5">
                   <img
-                    src={coffee.image || "/assets/coffee-beans.jpg"}
-                    alt={coffee.name || coffee.title}
+                    src={coffee.image }
+                    alt={coffee.name}
                     className="
                     w-full
                     h-48 sm:h-56 md:h-64 lg:h-72 xl:h-80
