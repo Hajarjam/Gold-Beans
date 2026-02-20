@@ -106,11 +106,8 @@ export default function MachineFilters({ machines = [], onApply }) {
   const clearFilters = () => {
     setFilters(getInitialFilters(options.maxPrice));
     setOpenFilter(null);
+    onApply?.(null);
   };
-
-  useEffect(() => {
-    onApply?.(isDefaultFilters(filters, options.maxPrice) ? null : filters);
-  }, [filters, onApply, options.maxPrice]);
 
   const filterSections = [
     { key: "type", title: "Type", values: filters.type, options: options.type },
