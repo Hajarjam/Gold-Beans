@@ -107,13 +107,7 @@ export default function CheckoutPage() {
               </button>
             </div>
 
-            {/* Card indicator badge */}
-            <div className="flex items-center gap-2 mb-4">
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border border-gray-200 ${cardType === "mastercard" ? "bg-gray-50" : "bg-white"}`}>
-                {cardType === "visa" ? <VisaIcon /> : <MastercardIcon />}
-                <span className="text-xs text-gray-500">{cardType === "visa" ? "Visa Card" : "Mastercard"}</span>
-              </div>
-            </div>
+           
 
             <label className="block text-sm font-medium mb-1">Card Number</label>
             <input
@@ -124,7 +118,7 @@ export default function CheckoutPage() {
             />
 
             <label className="block text-sm font-medium mb-1">Card Name Holder</label>
-            <input name="cardHolder" className={`${inputClass} mb-4`} onChange={handleChange} />
+            <input name="cardHolder" placeholder="Name on card" className={`${inputClass} mb-4`} onChange={handleChange} />
 
             <div className="flex gap-4 mb-4">
               <div className="flex-1">
