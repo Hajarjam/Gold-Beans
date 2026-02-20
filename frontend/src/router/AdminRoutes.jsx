@@ -7,7 +7,7 @@ import AdminProfile from "../pages/admin/AdminProfile";
 
 import AdminLayout from "../components/layouts/AdminLayout";
 import ProtectedRoute from "./ProtectedRoutes";
-/* import AdminDashboard from "../pages/admin/AdminDashboard"; */
+ import AdminDashboard from "../pages/admin/AdminDashboard"; 
 
 export default function AdminRoutes() {
   return (
@@ -20,7 +20,7 @@ export default function AdminRoutes() {
         }
       >
         <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<AdminPlaceholder title="Dashboard" />} />
+        <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="coffees" element={<Coffees />} />
         <Route path="machines" element={<Machines />} />
         <Route path="users" element={<Users />} />

@@ -9,7 +9,7 @@ const machineSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: ["espresso", "filter", "bean-to-cup", "manual"],
+      enum: ["espresso", "filter", "capsule", "bean-to-cup", "manual"],
       required: true,
     },
 
@@ -21,6 +21,7 @@ const machineSchema = new mongoose.Schema(
     coffeeTypeSupported: {
       type: [String],
       enum: ["beans", "ground"],
+      default: ["beans"],
     },
 
     price: {
@@ -33,11 +34,13 @@ const machineSchema = new mongoose.Schema(
       required: true,
     },
 
-     sales: { 
-      type : Number, 
-    },
+    
+    sales: { type: Number, default: 0 },
 
-    image: String,
+    images: {
+      type: [String],
+      default: [],
+    },
   },
   { timestamps: true }
 );
