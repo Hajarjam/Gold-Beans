@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { BreadcrumbContext } from "../../contexts/BreadcrumbContext";
 
-export default function Breadcrumb() {
+export default function Breadcrumb({ compact = false }) {
   const location = useLocation();
   const { breadcrumbData } = useContext(BreadcrumbContext);
   const pathnames = location.pathname.split("/").filter((x) => x);
@@ -22,11 +22,13 @@ export default function Breadcrumb() {
       // This is the last segment (the ID)
       if (fullPathnames[0] === "coffees") return "/coffees";
       if (fullPathnames[0] === "machine") return "/machines";
+      if (fullPathnames[0] === "machines") return "/machines";
     }
     
     // For category pages
     if (segment === "coffees") return "/coffees";
     if (segment === "machine") return "/machines";
+    if (segment === "machines") return "/machines";
     
     // Default: join the path normally
     return `/${fullPathnames.slice(0, index + 1).join("/")}`;
@@ -47,8 +49,10 @@ export default function Breadcrumb() {
     return null;
   }
 
+  const spacingClass = compact ? "mt-6 md:mt-10" : "mt-16 md:mt-24";
+
   return (
-    <nav className="bg-peach-light/30 py-3 px-4 md:px-8 mt-16 md:mt-24">
+    <nav className={`bg-peach-light/30 py-3 px-4 md:px-8 ${spacingClass}`}>
       <div className="max-w-7xl mx-auto">
         <ol className="flex items-center gap-2 text-sm md:text-base">
           {/* Home Link */}

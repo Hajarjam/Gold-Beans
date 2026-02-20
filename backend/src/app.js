@@ -2,13 +2,15 @@ const express = require("express");
 const publicRoutes = require("./routes/public.routes");
 const coffeeRoutes = require( "./routes/coffee.routes.js");
 const machinesRoutes = require( "./routes/machine.routes.js"); 
-const usersRoutes = require ("./routes/user.routes.js")
+const usersRoutes = require ("./routes/user.routes.js");
+const checkoutRoutes = require("./routes/checkout.routes.js");
 
-//const clientRoutes = require("./routes/client.routes");
+const clientRoutes = require("./routes/client.routes");
 const errorHandler = require("./middlewares/error.middleware");
-const path = require("path");
+
 const app = express();
-// in app.js
+
+
 const cors = require("cors");
 
 
@@ -25,10 +27,13 @@ app.use("/api/coffees", coffeeRoutes);
 app.use("/api", publicRoutes);
 app.use("/api/machines", machinesRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/clients", clientRoutes);
+
+app.use("/api/checkout", checkoutRoutes);
 
 
 //app.use("/api/admin", adminRoutes);
-//app.use("/api/client", clientRoutes);
+
 app.use(errorHandler);
 
 module.exports = app;  

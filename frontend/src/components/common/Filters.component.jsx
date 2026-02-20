@@ -1,20 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function Filters({ onApply }) {
+export default function Filters({ coffees = [], onApply }) {
   const [openFilter, setOpenFilter] = useState(null);
 
-  // Selected values
+  // Get max price dynamically from coffees
+  const maxPrice = coffees.length
+    ? Math.max(...coffees.map((c) => c.price))
+    : 100;
+
+  // Selected filters
   const [filters, setFilters] = useState({
     roastLevel: [],
     tasteProfile: [],
     intensity: [],
     origin: [],
-    price: [0, 20], // [minPrice, maxPrice] in dollars
+    price: maxPrice,
   });
 
-  const toggleFilter = (name) => {
+  // Update price if coffees change
+  useEffect(() => {
+    setFilters((prev) => ({ ...prev, price: maxPrice }));
+  }, [maxPrice]);
+
+  const toggleFilter = (name) =>
     setOpenFilter(openFilter === name ? null : name);
-  };
 
   const toggleOption = (category, value) => {
     setFilters((prev) => ({
@@ -25,22 +34,11 @@ export default function Filters({ onApply }) {
     }));
   };
 
-  const handlePriceChange = (index, value) => {
-    setFilters((prev) => {
-      const newPrice = [...prev.price];
-      newPrice[index] = Number(value);
-      return { ...prev, price: newPrice };
-    });
-  };
-
   const applyFilters = () => {
-    // Create a filter object for backend
     const adaptedFilters = {
       ...filters,
       intensity: filters.intensity.map(Number),
-      price: { $gte: filters.price[0], $lte: filters.price[1] },
     };
-    console.log("Applied filters:", adaptedFilters);
     onApply?.(adaptedFilters);
   };
 
@@ -50,31 +48,55 @@ export default function Filters({ onApply }) {
       tasteProfile: [],
       intensity: [],
       origin: [],
-      price: [0, 20],
+      price: maxPrice,
     });
     setOpenFilter(null);
+    onApply?.(null);
   };
 
-  return (
-<div className="shadow-md w-[50%] max-w-[700px] h-fit p-4 bg-white ml-10 rounded-md flex flex-col gap-2">
+  const originOptions = Array.from(
+    new Set(coffees.map((c) => c.origin))
+  );
 
+  const tasteProfileOptions = Array.from(
+    new Set(coffees.flatMap((c) => c.tasteProfile))
+  );
+
+  return (
+    <div
+      className="
+        shadow-md
+        w-full
+        sm:w-[85%]
+        md:w-[300px]
+        lg:w-[320px]
+        h-fit
+        p-3 sm:p-4
+        bg-white
+        mx-auto
+        rounded-md
+        flex
+        flex-col
+        gap-4
+        lg:sticky lg:top-24
+      "
+    >
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex gap-2 items-center">
           <img src="/assets/filter.png" className="w-5 h-5" />
-          <p className="font-semibold text-sm">Filter</p>
+          <p className="font-semibold text-sm">Filters</p>
         </div>
         <button
           onClick={clearFilters}
           className="text-gray-500 text-sm font-semibold hover:text-black"
         >
-          Clear
+          Clear All
         </button>
       </div>
 
       <hr />
 
-      {/* Roast Level */}
       <FilterSection
         title="Roast Level"
         isOpen={openFilter === "roastLevel"}
@@ -86,19 +108,17 @@ export default function Filters({ onApply }) {
 
       <hr />
 
-      {/* Taste Profile */}
       <FilterSection
         title="Taste Profile"
         isOpen={openFilter === "tasteProfile"}
         onToggle={() => toggleFilter("tasteProfile")}
-        options={["Sweet", "Bitter", "Fruity", "Nutty", "Chocolate"]}
+        options={tasteProfileOptions}
         values={filters.tasteProfile}
         onChange={(v) => toggleOption("tasteProfile", v)}
       />
 
       <hr />
 
-      {/* Intensity */}
       <FilterSection
         title="Intensity"
         isOpen={openFilter === "intensity"}
@@ -110,7 +130,18 @@ export default function Filters({ onApply }) {
 
       <hr />
 
-      {/* Price slider */}
+      <FilterSection
+        title="Origin"
+        isOpen={openFilter === "origin"}
+        onToggle={() => toggleFilter("origin")}
+        options={originOptions}
+        values={filters.origin}
+        onChange={(v) => toggleOption("origin", v)}
+      />
+
+      <hr />
+
+      {/* Price */}
       <div>
         <button
           onClick={() => toggleFilter("price")}
@@ -124,73 +155,47 @@ export default function Filters({ onApply }) {
             }`}
           />
         </button>
-{openFilter === "price" && (
-  <div className="px-2 py-2 flex flex-col gap-2">
-    {/* Display current min and max */}
-    <div className="flex justify-between text-sm mb-2">
-      <span>${filters.price[0]}</span>
-      <span>${filters.price[1]}</span>
-    </div>
 
-    {/* Slider track */}
-    <div className="relative h-2 w-full bg-gray-300 rounded">
-      {/* Selected range highlight */}
-      <div
-        className="absolute h-2 bg-brown rounded"
-        style={{
-          left: `${(filters.price[0] / 100) * 100}%`,
-          width: `${((filters.price[1] - filters.price[0]) / 100) * 100}%`,
-        }}
-      ></div>
-
-     
-      {/* Max thumb */}
-      <input
-        type="range"
-        min="0"
-        max="100"
-        value={filters.price[1]}
-        onChange={(e) =>
-          setFilters((prev) => ({
-            ...prev,
-            price: [prev.price[0], Math.max(Number(e.target.value), prev.price[0])],
-          }))
-        }
-        className="absolute w-full h-2 bg-transparent pointer-events-auto appearance-none"
-      />
-    </div>
-  </div>
-)}
-
-
-
+        {openFilter === "price" && (
+          <div className="mt-2 flex flex-col gap-1">
+            <div className="text-right text-sm text-gray-600">
+              ${filters.price}
+            </div>
+            <input
+              type="range"
+              min="0"
+              max={maxPrice}
+              value={filters.price}
+              onChange={(e) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  price: Number(e.target.value),
+                }))
+              }
+              className="w-full h-2 rounded-lg cursor-pointer"
+            />
+          </div>
+        )}
       </div>
 
-      <hr />
-
-      {/* Origin */}
-      <FilterSection
-        title="Origin"
-        isOpen={openFilter === "origin"}
-        onToggle={() => toggleFilter("origin")}
-        options={["Brazil", "Ethiopia", "Colombia", "Kenya", "Guatemala"]}
-        values={filters.origin}
-        onChange={(v) => toggleOption("origin", v)}
-      />
-
-      {/* Apply button */}
       <button
         onClick={applyFilters}
-        className="mt-4 bg-brown text-white text-sm py-2 rounded-md hover:bg-peach hover:text-black hover: transition"
+        className="mt-4 bg-brown text-white text-sm py-2 rounded-md hover:bg-peach hover:text-black transition"
       >
-        Apply filters
+        Apply Filters
       </button>
     </div>
   );
 }
 
-/* Reusable section */
-function FilterSection({ title, isOpen, onToggle, options, values, onChange }) {
+function FilterSection({
+  title,
+  isOpen,
+  onToggle,
+  options,
+  values,
+  onChange,
+}) {
   return (
     <div>
       <button
@@ -207,9 +212,12 @@ function FilterSection({ title, isOpen, onToggle, options, values, onChange }) {
       </button>
 
       {isOpen && options?.length > 0 && (
-        <div className="pl-4 py-2 flex flex-col gap-1 text-sm text-gray-600">
+        <div className="pl-4 py-2 flex flex-col gap-2 text-sm text-gray-600">
           {options.map((opt) => (
-            <label key={opt} className="flex items-center gap-2 cursor-pointer">
+            <label
+              key={opt}
+              className="flex items-center gap-3 py-1 cursor-pointer"
+            >
               <input
                 type="checkbox"
                 checked={values.includes(opt)}

@@ -8,6 +8,7 @@ router.get("/me", authenticate, userController.getMe);
 router.put("/me", authenticate, userController.updateMe);
 router.delete("/me", authenticate, userController.deleteMe);
 
+
 router.get("/", userController.getAllUsers);
 router.post("/", userController.createUser);
 router.put("/:id", userController.updateUser);

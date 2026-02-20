@@ -60,6 +60,7 @@ export default function CoffeeDetailPage() {
 
     const cartItem = {
       _id: product._id,
+      productType: "coffee",
       name: product.name,
       price: purchaseType === "subscribe" ? product.price * 0.9 : product.price,
       size: selectedSize,
@@ -75,16 +76,15 @@ export default function CoffeeDetailPage() {
     };
 
     addToCart(cartItem);
-    alert("Added to cart!");
   };
 
   return (
     <PeachLayout>
-      <div className="py-2 px-16 flex flex-row">
+      <div className="py-2 px-4 md:px-8 lg:px-12 flex flex-row">
         {" "}
         <Breadcrumb />
       </div>
-      <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-4 md:py-8 pt-24 md:pt-36">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 pt-24 md:pt-32">
         {loading && (
           <div className="flex justify-center items-center min-h-[400px]">
             <div className="text-center">
@@ -107,7 +107,7 @@ export default function CoffeeDetailPage() {
         {product && (
           <div>
             {/* Main Product Section - 3 columns */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[400px_1fr_320px] gap-6 md:gap-8 mb-8 md:mb-16">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[360px_1fr_300px] gap-5 md:gap-6 mb-8 md:mb-12">
               {/* Column 1: Product Image */}
               <div>
                 <div className="rounded-lg overflow-hidden">
@@ -233,7 +233,7 @@ export default function CoffeeDetailPage() {
               </div>
 
               {/* Column 3: Purchase Options Card */}
-              <div className="bg-white rounded-lg border border-peach p-4 md:p-5 h-fit mt-32 col-span-1 md:col-span-2 lg:col-span-1">
+              <div className="bg-white rounded-lg border border-peach p-4 md:p-5 h-fit mt-8 md:mt-10 lg:mt-20 col-span-1 md:col-span-2 lg:col-span-1">
                 <div className="space-y-4">
                   {/* One-time Purchase */}
                   <label className="flex items-center justify-between cursor-pointer">
@@ -318,11 +318,11 @@ export default function CoffeeDetailPage() {
             </div>
 
             {/* Divider */}
-            <div className="border-t border-peach my-8 md:my-12"></div>
+            <div className="border-t border-peach my-8 md:my-10"></div>
 
             {/* Product Information Section */}
-            <div className="px-4 md:px-12 py-8 md:py-12">
-              <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-8 lg:gap-64">
+            <div className="px-2 md:px-6 py-8 md:py-10">
+              <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-8 lg:gap-16">
                 {/* Flavor Profile */}
                 <div className="flex-1 flex flex-col items-center mb-8 md:mb-0">
                   <div className="w-16 md:w-20 h-16 md:h-20 bg-white rounded-full flex items-center justify-center mb-4 md:mb-6">
@@ -333,7 +333,7 @@ export default function CoffeeDetailPage() {
                     Flavor Profile :
                   </h3>
 
-                  <div className="w-full max-w-md md:ml-16">
+                  <div className="w-full max-w-md">
                     <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-4 md:gap-6 mb-4 md:mb-8">
                       <div className="text-center md:text-left flex-shrink-0">
                         <div className="text-xs md:text-sm font-semibold text-brown mb-1">
@@ -372,7 +372,7 @@ export default function CoffeeDetailPage() {
                     Origin & Sourcing
                   </h3>
 
-                  <div className="w-full max-w-md md:mr-16">
+                  <div className="w-full max-w-md">
                     <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-4 md:gap-6">
                       <div className="text-center md:text-left flex-shrink-0">
                         <div className="text-xs md:text-sm font-semibold text-brown mb-1">

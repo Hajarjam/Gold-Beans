@@ -112,42 +112,42 @@ export default function CoffeesPage() {
   return (
     <>
       <PeachLayout>
-        <div className="py-2 px-16 flex flex-row">
-          <Breadcrumb />
-          <div className=" max-w-3xl mx-auto py-12 mt-8 text-center">
-            <h1 className="text-4xl text-brown font-instrument-serif">Our Coffees</h1>
-            <p className="font-instrument-sans text-sm mt-4">
-              Choose from a wide variety of coffee from the top roasters in the US.
-              <br />
-              All our specialty coffee is roasted to order and shipped fresh to your door.
-            </p>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 md:px-10 pt-2 md:pt-3">
+          <Breadcrumb compact />
         </div>
-        <div className="flex gap-10 px-10">
+
+        <div className="text-center pt-8 md:pt-10 pb-8 px-4">
+          <h1 className="font-instrument-serif text-brown text-5xl mb-4">
+            Our Coffees
+          </h1>
+          <p className="font-instrument-sans text-charcoal text-base leading-relaxed">
+            Choose from a wide variety of coffee from the top roasters in the US.
+            <br />
+            All our specialty coffee is roasted to order and shipped fresh to your door.
+          </p>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 md:px-10 flex justify-end items-center gap-3 mb-3">
+          <select
+            value={sortOption}
+            onChange={handleSortChange}
+            className="text-sm border border-gray-300 rounded-md px-3 py-2 bg-white"
+          >
+            <option value="">Sort by</option>
+            <option value="price-low-high">Price: Low to High</option>
+            <option value="price-high-low">Price: High to Low</option>
+            <option value="intensity-low-high">Intensity: Low to High</option>
+            <option value="intensity-high-low">Intensity: High to Low</option>
+            <option value="name-a-z">Name: A to Z</option>
+            <option value="name-z-a">Name: Z to A</option>
+          </select>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 md:px-10 pb-16 flex flex-col lg:flex-row gap-8 items-start">
           <Filters coffees={coffees} onApply={handleApplyFilters} />
 
           <section className="flex flex-col flex-1">
-            <div className="flex items-center justify-between mb-4 px-4 md:px-0">
-              <p className="text-sm text-gray-600">
-                {loading ? "Loading coffees..." : `${list.length} coffees`}
-              </p>
-
-              <select
-                value={sortOption}
-                onChange={handleSortChange}
-                className="border border-gray-300 rounded-md px-3 py-1 text-sm"
-              >
-                <option value="">Sort by</option>
-                <option value="price-low-high">Price: Low to High</option>
-                <option value="price-high-low">Price: High to Low</option>
-                <option value="intensity-low-high">Intensity: Low to High</option>
-                <option value="intensity-high-low">Intensity: High to Low</option>
-                <option value="name-a-z">Name: A to Z</option>
-                <option value="name-z-a">Name: Z to A</option>
-              </select>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 px-4 md:px-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {loading ? (
                 <p className="col-span-full text-center">Loading...</p>
               ) : list.length > 0 ? (
