@@ -33,6 +33,10 @@ const machineSchema = new mongoose.Schema(
       required: true,
     },
 
+     sales: { 
+      type : Number, 
+    },
+
     image: String,
   },
   { timestamps: true }

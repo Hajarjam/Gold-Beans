@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 
 export default function CoffeeCard({ coffee }) {
-  const imageUrl = "/assets/columbianbrewcoffee.jpg";
+  const imageUrl = coffee.images?.[0] || "/assets/coffee-beans.jpg";
   
   return (
     <Link to={`/coffees/${coffee._id}`} className="block">
