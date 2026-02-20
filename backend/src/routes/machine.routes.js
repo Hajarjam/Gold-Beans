@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const machineController = require("../controllers/machine.controller");
 const { uploadMachineImage } = require("../middlewares/upload.middleware");
+const coffeeController = require("../controllers/coffee.controller");
+
 
 router.get("/", machineController.getAllMachines);
 router.get("/:id", machineController.getMachineById);
@@ -17,5 +19,8 @@ router.put(
 );
 
 router.delete("/:id", machineController.deleteMachine);
+
+router.get("/best-sellers", coffeeController.getBestSellers);
+
 
 module.exports = router;

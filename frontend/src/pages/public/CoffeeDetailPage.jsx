@@ -112,7 +112,7 @@ export default function CoffeeDetailPage() {
               <div>
                 <div className="rounded-lg overflow-hidden">
                   <img
-                    src={"/assets/columbianbrewcoffee.jpg"}
+                    src={product.image}
                     alt={product.name}
                     className="w-full h-auto max-h-[250px] md:max-h-[400px] object-cover"
                   />
@@ -251,7 +251,7 @@ export default function CoffeeDetailPage() {
                       </span>
                     </div>
                     <span className="text-sm font-semibold text-charcoal">
-                      {product.price}
+                       {product.price}$
                     </span>
                   </label>
 
@@ -272,7 +272,7 @@ export default function CoffeeDetailPage() {
                       </span>
                     </div>
                     <span className="text-sm font-semibold text-charcoal">
-                      ${(product.price * 0.9).toFixed(2)}
+                      {(product.price * 0.9).toFixed(2)}$
                     </span>
                   </label>
 

@@ -3,15 +3,39 @@
 import MainLayout from "../../components/layouts/MainLayout";
 //import useHomeService from "../../hooks/useHomeService";
 
-import productsData from "../../components/data/products.json";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const API_URL = process.env.REACT_APP_API_URLL;
 
 export default function HomePage() {
-  const bestSellers = productsData.products.filter(
-    (product) => product.isBestSeller,
-  );
+  const [bestSellers, setBestSellers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchBestSellers = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        console.log("Fetching from:", `${API_URL}/api/coffees/best-sellers`);
+        const response = await axios.get(`${API_URL}/api/coffees/best-sellers`);
+        console.log("Best-selling coffees:", response.data);
+        setBestSellers(response.data || []);
+      } catch (err) {
+        console.error("Error fetching best sellers:", err.response?.data || err.message);
+        console.error("Full error:", err);
+        setError("Failed to load best sellers");
+        setBestSellers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBestSellers();
+  }, []);
 
   return (
     <MainLayout>
@@ -62,69 +86,95 @@ export default function HomePage() {
           OUR BEST SELLERS
         </h2>
 
-        <div
-          className="
-          mx-auto
-          px-4 sm:px-6 md:px-8
-          grid gap-6 sm:gap-8 md:gap-10 lg:gap-12
-          grid-cols-1
-          sm:grid-cols-2
-          lg:grid-cols-3
-          max-w-4xl
-          lg:max-w-6xl
-          2xl:max-w-7xl
-        "
-        >
-          {bestSellers.map((product) => (
-            <div
-              key={product.id}
-              className="bg-dark-brown rounded-2xl pb-6 text-center shadow-lg hover:shadow-2xl transition-shadow"
-            >
-              <div className="overflow-hidden rounded-t-2xl mb-4 sm:mb-5">
-                <img
-                  src={product.image}
-                  alt={product.title}
+        {loading && (
+          <div className="text-center text-peach-light text-sm sm:text-base">
+            Loading best sellers...
+          </div>
+        )}
+
+        {error && (
+          <div className="text-center text-red-400 text-sm sm:text-base">
+            {error}
+          </div>
+        )}
+
+        {!loading && !error && bestSellers.length === 0 && (
+          <div className="text-center text-peach-light text-sm sm:text-base">
+            No best sellers available
+          </div>
+        )}
+
+        {!loading && bestSellers.length > 0 && (
+          <div
+            className="
+            mx-auto
+            px-4 sm:px-6 md:px-8
+            grid gap-6 sm:gap-8 md:gap-10 lg:gap-12
+            grid-cols-1
+            sm:grid-cols-2
+            lg:grid-cols-3
+            max-w-4xl
+            lg:max-w-6xl
+            2xl:max-w-7xl
+          "
+          >
+            {bestSellers.map((coffee) => (
+              <div
+                key={coffee._id}
+                className="bg-dark-brown rounded-2xl pb-6 text-center shadow-lg hover:shadow-2xl transition-shadow cursor-pointer"
+                onClick={() => navigate(`/coffees/${coffee._id}`)}
+              >
+                <div className="overflow-hidden rounded-t-2xl mb-4 sm:mb-5">
+                  <img
+                    src={coffee.image }
+                    alt={coffee.name}
+                    className="
+                    w-full
+                    h-48 sm:h-56 md:h-64 lg:h-72 xl:h-80
+                    object-cover
+                    hover:scale-105 transition-transform duration-300
+                  "
+                    onError={(e) => { e.currentTarget.src = "/assets/coffee-beans.jpg"; }}
+                  />
+                </div>
+
+                <h3
                   className="
-                  w-full
-                  h-48 sm:h-56 md:h-64 lg:h-72 xl:h-80
-                  object-cover
-                  hover:scale-105 transition-transform duration-300
-                "
-                />
+                text-white 
+                text-xs sm:text-sm lg:text-base
+                uppercase 
+                tracking-wide 
+                mb-4 sm:mb-5 md:mb-6
+                font-semibold
+                px-4
+              "
+                >
+                  {coffee.name || coffee.title}
+                </h3>
+
+                <button
+                  className="
+                bg-white 
+                font-semibold 
+                text-black 
+                text-xs lg:text-sm
+                px-4 sm:px-5
+                py-2 sm:py-2.5
+                rounded-md 
+                hover:bg-gray-200 
+                transition
+              "
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/coffees/${coffee._id}`);
+                  }}
+                >
+                  SHOP NOW
+                </button>
               </div>
-
-              <h3
-                className="
-              text-white 
-              text-xs sm:text-sm lg:text-base
-              uppercase 
-              tracking-wide 
-              mb-4 sm:mb-5 md:mb-6
-              font-semibold
-              px-4
-            "
-              >
-                {product.title}
-              </h3>
-
-              <button
-                className="
-              bg-white 
-              font-semibold 
-              text-black 
-              text-xs lg:text-sm
-              px-4 sm:px-5
-              py-2 sm:py-2.5
-              rounded-md 
-              hover:bg-gray-200 
-              transition
-            "
-              >
-                SHOP NOW
-              </button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Product Section */}
