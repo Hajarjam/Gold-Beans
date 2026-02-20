@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import MachineCard from "../../components/common/MachineCard.component";
-import Filters from "../../components/common/Filters.component";
+import MachineFilters from "../../components/common/MachineFilters.component";
 import Pagination from "../../components/common/Pagination";
 import PeachLayout from "../../components/layouts/PeachLayout";
 import publicApi from "../../api/publicApi";
@@ -10,18 +10,17 @@ const ITEMS_PER_PAGE = 9;
 
 export default function MachinePage() {
   const [machines, setMachines] = useState([]);
-  const [filteredMachines, setFilteredMachines] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOption, setSortOption] = useState("");
-  // Fetch machines from backend
+  const [activeFilters, setActiveFilters] = useState(null);
+
   useEffect(() => {
     const fetchMachines = async () => {
       setLoading(true);
       try {
         const data = await publicApi.getMachines();
         setMachines(data);
-        setFilteredMachines(data);
       } catch (error) {
         console.error("Error fetching machines:", error);
       }
@@ -45,49 +44,65 @@ export default function MachinePage() {
         return list;
     }
   };
+  const handleApplyFilters = useCallback((filters) => {
+    setActiveFilters(filters);
+    setCurrentPage(1);
+  }, []);
+
   const handleSortChange = (e) => {
-    const option = e.target.value;
-    setSortOption(option);
-
-    setFilteredMachines((prev) => {
-      const source = prev.length ? prev : machines;
-      return sortMachines(source, option);
-    });
-
+    setSortOption(e.target.value);
     setCurrentPage(1);
   };
 
-  // Handle applying filters
-  const handleApplyFilters = (filters) => {
-    const result = machines.filter((machine) => {
-      // Type filter
-      if (filters.type?.length && !filters.type.includes(machine.type))
+  const list = useMemo(() => {
+    const filtered = machines.filter((machine) => {
+      if (!activeFilters) return true;
+
+      if (activeFilters.type?.length && !activeFilters.type.includes(machine.type)) {
         return false;
-      // Brand filter
-      if (filters.brand?.length && !filters.brand.includes(machine.brand))
+      }
+
+      if (activeFilters.brand?.length && !activeFilters.brand.includes(machine.brand)) {
         return false;
-      // Power filter
+      }
+
       if (
-        filters.power?.length &&
-        !filters.power.includes(String(machine.power))
-      )
+        activeFilters.category?.length &&
+        !activeFilters.category.includes(machine.category)
+      ) {
         return false;
-      // Price filter
+      }
+
+      if (activeFilters.power?.length) {
+        const machinePower = String(machine.power ?? "");
+        if (!activeFilters.power.includes(machinePower)) return false;
+      }
+
+      if (activeFilters.coffeeTypeSupported?.length) {
+        const supportedTypes = Array.isArray(machine.coffeeTypeSupported)
+          ? machine.coffeeTypeSupported
+          : [];
+        const hasMatchingCoffeeType = supportedTypes.some((type) =>
+          activeFilters.coffeeTypeSupported.includes(type)
+        );
+        if (!hasMatchingCoffeeType) return false;
+      }
+
+      const machinePrice = Number(machine.price);
       if (
-        machine.price < filters.price?.$gte ||
-        machine.price > filters.price?.$lte
-      )
+        Number.isFinite(activeFilters.maxPrice) &&
+        Number.isFinite(machinePrice) &&
+        machinePrice > activeFilters.maxPrice
+      ) {
         return false;
+      }
 
       return true;
     });
 
-    setFilteredMachines(result);
-    setCurrentPage(1);
-    setCurrentPage(1);
-  };
+    return sortMachines(filtered, sortOption);
+  }, [machines, activeFilters, sortOption]);
 
-  const list = filteredMachines.length > 0 ? filteredMachines : machines;
   const totalPages = Math.ceil(list.length / ITEMS_PER_PAGE) || 1;
   const start = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedMachines = list.slice(start, start + ITEMS_PER_PAGE);
@@ -128,7 +143,7 @@ export default function MachinePage() {
 
         <div className="max-w-7xl mx-auto px-4 md:px-10 pb-16 flex flex-col lg:flex-row gap-8 items-start">
           {/* Filters */}
-          <Filters onApply={handleApplyFilters} />
+          <MachineFilters machines={machines} onApply={handleApplyFilters} />
 
           {/* Machine Cards */}
           <section className="flex flex-col flex-1">
