@@ -42,12 +42,12 @@ export default function CheckoutPage() {
     <DarkNavbar />
     <div className="min-h-screen py-20 bg-peach-light font-sans text-gray-800">
       {/* Breadcrumb */}
-      <div className="px-10 py-2 text-xs text-gray-500">
+      <div className=" px-10 py-2 text-xs text-gray-500">
         Home &gt; Your Cart &gt; Checkout
       </div>
 
       {/* Main content */}
-      <main className="px-10 py-6 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 max-w-5xl">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 px-10 py-6 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 max-w-5xl">
         {/* Left */}
         <div className="flex flex-col gap-6">
           {/* Delivery */}
@@ -55,7 +55,7 @@ export default function CheckoutPage() {
             <h2 className="text-xl font-bold mb-5">Delivery</h2>
 
             <div className="grid grid-cols-2 gap-3 mb-3">
-              <input name="firstName" placeholder="First name (optional)" className={inputClass} onChange={handleChange} />
+              <input name="firstName" placeholder="First name" className={inputClass} onChange={handleChange} />
               <input name="lastName" placeholder="Last name" className={inputClass} onChange={handleChange} />
             </div>
 
@@ -72,7 +72,7 @@ export default function CheckoutPage() {
             </div>
 
             <div className="relative">
-              <input name="phone" placeholder="Phone (optional)" className={inputClass} onChange={handleChange} />
+              <input name="phone" placeholder="Phone number" className={inputClass} onChange={handleChange} />
               <span className="absolute right-3 top-2.5 text-gray-400 text-xs border border-gray-300 rounded-full w-4 h-4 flex items-center justify-center">?</span>
             </div>
           </div>
@@ -87,7 +87,7 @@ export default function CheckoutPage() {
                 onClick={() => setCardType("visa")}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all text-sm font-medium ${
                   cardType === "visa"
-                    ? "border-black bg-black text-white"
+                    ? "border-black bg-peach text-white"
                     : "border-gray-200 bg-white text-gray-600 hover:border-gray-400"
                 }`}
               >
@@ -98,7 +98,7 @@ export default function CheckoutPage() {
                 onClick={() => setCardType("mastercard")}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all text-sm font-medium ${
                   cardType === "mastercard"
-                    ? "border-black bg-gray-50"
+                    ? "border-black bg-peach text-white"
                     : "border-gray-200 bg-white text-gray-600 hover:border-gray-400"
                 }`}
               >
@@ -107,14 +107,7 @@ export default function CheckoutPage() {
               </button>
             </div>
 
-            {/* Card indicator badge */}
-            <div className="flex items-center gap-2 mb-4">
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-md border border-gray-200 ${cardType === "mastercard" ? "bg-gray-50" : "bg-white"}`}>
-                {cardType === "visa" ? <VisaIcon /> : <MastercardIcon />}
-                <span className="text-xs text-gray-500">{cardType === "visa" ? "Visa Card" : "Mastercard"}</span>
-              </div>
-            </div>
-
+            
             <label className="block text-sm font-medium mb-1">Card Number</label>
             <input
               name="cardNumber"
@@ -124,16 +117,19 @@ export default function CheckoutPage() {
             />
 
             <label className="block text-sm font-medium mb-1">Card Name Holder</label>
-            <input name="cardHolder" className={`${inputClass} mb-4`} onChange={handleChange} />
+            <input name="cardHolder"
+              placeholder="John Doe"
+             className={`${inputClass} mb-4`} onChange={handleChange} />
 
             <div className="flex gap-4 mb-4">
               <div className="flex-1">
                 <label className="block text-sm font-medium mb-1">Expiration Date</label>
-                <input name="expiration" defaultValue="09/26" className={inputClass} onChange={handleChange} />
+                <input name="expiration" 
+                placeholder="MM/YY" className={inputClass} onChange={handleChange} />
               </div>
               <div className="flex-1">
                 <label className="block text-sm font-medium mb-1">CVV</label>
-                <input name="cvv" defaultValue="145" className={inputClass} onChange={handleChange} />
+                <input name="cvv" placeholder="123" className={inputClass} onChange={handleChange} />
               </div>
             </div>
 
@@ -146,8 +142,9 @@ export default function CheckoutPage() {
 
         {/* Right - Order Summary */}
         <div>
-          <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+          
           <div className="bg-white rounded-xl shadow-sm p-5">
+            <h2 className="text-xl font-bold mb-4">Order Summary</h2>
             <input
               type="text"
               placeholder="Enter coupon code here"
@@ -171,15 +168,16 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <button className="w-full mt-5 bg-black text-white py-3 rounded-lg text-sm font-medium hover:bg-gray-900 transition-colors">
+            <button className="w-full mt-5 bg-brown text-white py-3 rounded-lg text-sm font-medium hover:bg-peach transition-colors">
               Continue payment
             </button>
-          </div>
-
-          <p className="text-center text-xs text-gray-500 mt-3">
+             <p className="text-center text-xs text-gray-500 mt-3">
             Not ready to checkout?{" "}
             <a href="#" className="font-semibold underline">Continue Shopping</a>
           </p>
+          </div>
+
+         
         </div>
       </main>
     </div>
