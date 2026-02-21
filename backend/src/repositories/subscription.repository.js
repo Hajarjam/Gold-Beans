@@ -5,11 +5,22 @@ const findByClient = (clientId) =>
     .populate("coffee", "name images roastLevel price")
     .sort({ createdAt: -1 });
 
+const findByClients = (clientIds = []) =>
+  Subscription.find({ client: { $in: clientIds } })
+    .populate("coffee", "name images roastLevel price")
+    .sort({ createdAt: -1 });
+
 const findActiveByClient = (clientId) =>
   Subscription.find({ client: clientId, status: "Active" }).populate("coffee");
 
 const findPreviewByClient = (clientId, limit = 3) =>
   Subscription.find({ client: clientId })
+    .populate("coffee", "name images")
+    .sort({ createdAt: -1 })
+    .limit(limit);
+
+const findPreviewByClients = (clientIds = [], limit = 3) =>
+  Subscription.find({ client: { $in: clientIds } })
     .populate("coffee", "name images")
     .sort({ createdAt: -1 })
     .limit(limit);
@@ -22,8 +33,10 @@ const deleteSubscription = (id) => Subscription.findByIdAndDelete(id);
 
 module.exports = {
   findByClient,
+  findByClients,
   findActiveByClient,
   findPreviewByClient,
+  findPreviewByClients,
   findById,
   createSubscription,
   updateSubscription,

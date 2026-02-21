@@ -65,7 +65,7 @@ export default function HomePage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <button className="px-6 sm:px-8 py-2.5 sm:py-3 bg-peach-light text-black font-semibold font-instrument-sans rounded-lg hover:bg-peach transition text-sm sm:text-base">
+              <button onClick={() => navigate("/subscribe")} className="px-6 sm:px-8 py-2.5 sm:py-3 bg-peach-light text-black font-semibold font-instrument-sans rounded-lg hover:bg-peach transition text-sm sm:text-base">
                 Subscribe
               </button>
               <button

@@ -75,7 +75,7 @@ export default function Breadcrumb({ compact = false }) {
             const displayName = customName || getBreadcrumbLabel(value);
 
             return (
-              <li key={to} className="flex items-center gap-2">
+              <li key={`${to}-${index}-${value}`} className="flex items-center gap-2">
                 <span className="text-brown">/</span>
                 {isLast ? (
                   <span className="text-charcoal font-semibold font-instrument-sans">

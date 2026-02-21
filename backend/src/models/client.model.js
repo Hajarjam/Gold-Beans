@@ -9,6 +9,14 @@ const clientSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: { type: String, enum: ["client", "admin"], default: "client" },
     isActive: { type: Boolean, default: false },
+    addresses: [
+      {
+        street: { type: String, required: true },
+        city: { type: String, required: true },
+        zip: { type: String, required: true },
+        country: { type: String, default: "Morocco" },
+      },
+    ],
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     activationToken: String 

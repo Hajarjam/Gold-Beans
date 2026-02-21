@@ -107,20 +107,32 @@ export default function CheckoutPage() {
       }
 
       const payloadItems = items.map((it) => {
-        const productType =
-          it.productType || (it.grind || it.size || it.purchaseType ? "coffee" : "machine");
+        const normalizedProductType =
+          it.productType === "subscription"
+            ? "subscription"
+            : it.productType || (it.grind || it.size || it.purchaseType ? "coffee" : "machine");
+        const productId = it._id || it.id || it.productId;
 
         return {
-          productType,          // ✅ REQUIRED
-          productId: it._id,     // ✅ REQUIRED
+          productType: normalizedProductType,
+          productId: String(productId || ""),
           name: it.name,
           price: Number(it.price || 0),
           quantity: Number(it.qty || 1),
-          
           buyOption: it.purchaseType || "oneTime",
           deliveryEvery: it.deliveryFrequency || "",
         };
       });
+
+      const hasInvalidItem = payloadItems.some(
+        (it) =>
+          !it.productId ||
+          !["coffee", "machine", "subscription"].includes(it.productType) ||
+          Number(it.quantity || 0) <= 0
+      );
+      if (hasInvalidItem) {
+        throw new Error("Invalid cart items. Please refresh your cart and try again.");
+      }
 
 
       const body = {

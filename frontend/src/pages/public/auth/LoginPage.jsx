@@ -20,7 +20,8 @@ export default function LoginPage() {
 
 
         try {
-            const response = await publicApi.login({ email, password });
+            const normalizedEmail = email.trim().toLowerCase();
+            const response = await publicApi.login({ email: normalizedEmail, password });
             // Save token in the canonical key used across the app
             localStorage.setItem("authToken", response.token);//On stocke le token JWT dans le navigateur. Pour pouvoir l’envoyer plus tard dans les requêtes protégées et Pour garder l’utilisateur connecté même après refresh
             // Store user info for UI convenience (components may use this)

@@ -8,6 +8,7 @@ const ClientProfil = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [profile, setProfile] = useState(null);
 
   const [form, setForm] = useState({
     firstName: "",
@@ -18,6 +19,14 @@ const ClientProfil = () => {
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
+  });
+
+  const normalizeProfile = (data) => ({
+    firstName: data?.firstName || "",
+    lastName: data?.lastName || "",
+    email: data?.email || "",
+    role: data?.role || "client",
+    isActive: typeof data?.isActive === "boolean" ? data.isActive : true,
   });
 
   useEffect(() => {
@@ -32,10 +41,12 @@ const ClientProfil = () => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || data.message || "Failed to load profile");
 
+        const currentProfile = normalizeProfile(data);
+        setProfile(currentProfile);
         setForm({
-          firstName: data.firstName || "",
-          lastName: data.lastName || "",
-          email: data.email || "",
+          firstName: currentProfile.firstName,
+          lastName: currentProfile.lastName,
+          email: currentProfile.email,
         });
       } catch (err) {
         setError(err.message || "Failed to load profile");
@@ -59,6 +70,7 @@ const ClientProfil = () => {
 
     try {
       const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("Not authenticated");
       const res = await fetch(`${API_BASE_URL}/client/profile`, {
         method: "PUT",
         headers: {
@@ -69,6 +81,13 @@ const ClientProfil = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || data.message || "Failed to update profile");
+      const updatedProfile = normalizeProfile(data?.data || data);
+      setProfile(updatedProfile);
+      setForm({
+        firstName: updatedProfile.firstName,
+        lastName: updatedProfile.lastName,
+        email: updatedProfile.email,
+      });
       setMessage("Profile updated");
     } catch (err) {
       setError(err.message || "Failed to update profile");
@@ -85,6 +104,7 @@ const ClientProfil = () => {
 
     try {
       const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("Not authenticated");
       const res = await fetch(`${API_BASE_URL}/client/password`, {
         method: "PUT",
         headers: {
@@ -114,6 +134,7 @@ const ClientProfil = () => {
 
     try {
       const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("Not authenticated");
       const res = await fetch(`${API_BASE_URL}/client/account`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
@@ -139,6 +160,28 @@ const ClientProfil = () => {
 
         {error ? <div className="mb-4 rounded bg-red-100 text-red-700 px-4 py-3">{error}</div> : null}
         {message ? <div className="mb-4 rounded bg-green-100 text-green-700 px-4 py-3">{message}</div> : null}
+
+        <section className="mb-6 bg-white/60 border border-brown/15 rounded-xl p-6">
+          <h2 className="text-xl font-instrument-serif mb-4">Current Information</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-brown/70">First Name</p>
+              <p className="font-medium">{profile?.firstName || "-"}</p>
+            </div>
+            <div>
+              <p className="text-sm text-brown/70">Last Name</p>
+              <p className="font-medium">{profile?.lastName || "-"}</p>
+            </div>
+            <div>
+              <p className="text-sm text-brown/70">Email</p>
+              <p className="font-medium">{profile?.email || "-"}</p>
+            </div>
+            <div>
+              <p className="text-sm text-brown/70">Role</p>
+              <p className="font-medium capitalize">{profile?.role || "-"}</p>
+            </div>
+          </div>
+        </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <form onSubmit={handleSaveProfile} className="bg-white/60 border border-brown/15 rounded-xl p-6 space-y-4">

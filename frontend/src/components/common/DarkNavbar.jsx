@@ -13,9 +13,9 @@ export default function DarkNavbar() {
   const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
 
   const menuItems = [
-    { name: "Our coffee", link: "/coffees" },
+    { name: "Our coffees", link: "/coffees" },
     { name: "Our machines", link: "/machines" },
-    { name: "Subscribe", link: "#" },
+    { name: "Subscribe", link: "/subscribe" },
   ];
 
   return (

@@ -4,7 +4,7 @@ const Joi = require("joi");//Joi est une bibliothèque qui sert à vérifier (va
 const registerSchema = Joi.object({
   firstName: Joi.string().min(2).max(50).required(),
   lastName: Joi.string().min(2).max(50).required(),
-  email: Joi.string().email().required(),
+  email: Joi.string().trim().lowercase().email().required(),
 
   password: Joi.string().min(6).required(),
 
@@ -25,13 +25,13 @@ const registerSchema = Joi.object({
 
 // Schema pour le login
 const loginSchema = Joi.object({
-  email: Joi.string().email().required(),
+  email: Joi.string().trim().lowercase().email().required(),
   password: Joi.string().required(),
 });
 
 // Schema pour email (forgot password)
 const emailSchema = Joi.object({
-  email: Joi.string().email().required(),
+  email: Joi.string().trim().lowercase().email().required(),
 });
 
 // Schema pour reset password

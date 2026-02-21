@@ -4,6 +4,8 @@ import Coffees from "../pages/admin/products/Coffees";
 import Machines from "../pages/admin/products/Machines";
 import Users from "../pages/admin/users";
 import AdminProfile from "../pages/admin/AdminProfile";
+import Orders from "../pages/admin/Orders";
+import Subscriptions from "../pages/admin/Subscriptions";
 
 import AdminLayout from "../components/layouts/AdminLayout";
 import ProtectedRoute from "./ProtectedRoutes";
@@ -24,23 +26,11 @@ export default function AdminRoutes() {
         <Route path="coffees" element={<Coffees />} />
         <Route path="machines" element={<Machines />} />
         <Route path="users" element={<Users />} />
-        <Route path="orders" element={<AdminPlaceholder title="Orders" />} />
-        <Route
-          path="subscription"
-          element={<AdminPlaceholder title="Subscription" />}
-        />
+        <Route path="orders" element={<Orders />} />
+        <Route path="subscription" element={<Subscriptions />} />
         <Route path="me" element={<AdminProfile />} />
         <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
       </Route>
     </Routes>
-  );
-}
-
-function AdminPlaceholder({ title }) {
-  return (
-    <div className="rounded-xl border border-dashed border-[#EADFD7] p-8 text-center">
-      <h2 className="text-2xl font-instrument-serif mb-2">{title}</h2>
-      <p className="text-sm text-[#3B170D]/70">This section is coming soon.</p>
-    </div>
   );
 }

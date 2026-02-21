@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../../contexts/AuthProvider";
 
 const API_URL = process.env.REACT_APP_API_URLL;
 
 export default function Users() {
+  const { loading: authLoading, isAuthenticated } = useAuth();
   const [clients, setclients] = useState([]);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("firstNameAsc");
@@ -25,29 +27,50 @@ export default function Users() {
   });
 
   async function load() {
+    if (authLoading) return;
+    if (!isAuthenticated) {
+      setclients([]);
+      setLoading(false);
+      return;
+    }
+
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      setclients([]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       const r = await fetch(
-        `${API_URL}/api/users?search=${encodeURIComponent(search)}&sort=${sort}`
+        `${API_URL}/api/users?search=${encodeURIComponent(search)}&sort=${sort}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
-      const data = await r.json().catch(() => []);
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || data.message || "Failed to load users");
       const list = Array.isArray(data) ? data : data.clients || [];
       setclients(list);
+    } catch (err) {
+      setclients([]);
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    load();
+    if (!authLoading && isAuthenticated) load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sort]);
+  }, [sort, authLoading, isAuthenticated]);
 
   useEffect(() => {
+    if (authLoading || !isAuthenticated) return;
     const t = setTimeout(load, 250);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+  }, [search, authLoading, isAuthenticated]);
 
   function openCreate() {
     setEditing(null);
@@ -95,11 +118,16 @@ export default function Users() {
       : `${API_URL}/api/users`;
 
     const method = editing ? "PUT" : "POST";
+    const token = localStorage.getItem("authToken");
+    if (!token) return alert("Not authenticated");
 
 
     const r = await fetch(url, {
       method,
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(payload),
     });
 
@@ -117,10 +145,15 @@ export default function Users() {
 
   async function confirmDelete() {
     if (!deleting?._id) return;
+    const token = localStorage.getItem("authToken");
+    if (!token) return alert("Not authenticated");
     setDeletingLoading(true);
 
     try {
-      const r = await fetch(`${API_URL}/api/users/${deleting._id}`, { method: "DELETE" });
+      const r = await fetch(`${API_URL}/api/users/${deleting._id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       const data = await r.json().catch(() => ({}));
       if (!r.ok) return window.alert(data.message || data.error || "Delete failed");

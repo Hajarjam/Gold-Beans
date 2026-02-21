@@ -19,10 +19,5 @@ router.post("/", authenticate, isAdmin, validate(createUserSchema), userControll
 router.put("/:id", authenticate, isAdmin, validate(updateUserSchema), userController.updateUser);
 router.delete("/:id", authenticate, isAdmin, userController.deleteUser);
 
-router.get("/", userController.getAllUsers);
-router.post("/", userController.createUser);
-router.put("/:id", userController.updateUser);
-router.delete("/:id", userController.deleteUser);
-
 
 module.exports = router;

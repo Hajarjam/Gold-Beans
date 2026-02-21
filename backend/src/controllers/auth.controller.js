@@ -23,9 +23,10 @@ const activateAccount = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
-    
-    const result = await authService.login({ email, password } );
+    const email = typeof req.body?.email === "string" ? req.body.email.trim() : req.body?.email;
+    const { password } = req.body;
+
+    const result = await authService.login({ email, password });
     res.json(result);
   } catch (err) {
     next(err); 

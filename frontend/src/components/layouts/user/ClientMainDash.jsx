@@ -34,8 +34,8 @@ const ClientMainDash = () => {
         if (!response.ok) throw new Error(data.error || data.message || "Failed to fetch dashboard data");
 
         setProducts(data.coffeesPreview || []);
-        setSubscriptions(data.subscriptionsPreview || []);
-        setHistory(data.historyPreview || []);
+        setSubscriptions(data.currentSubscriptions || data.subscriptionsPreview || []);
+        setHistory(data.subscriptionHistory || data.historyPreview || []);
       } catch (err) {
         setError(err.message || "Failed to load dashboard data");
       } finally {
