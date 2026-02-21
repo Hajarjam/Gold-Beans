@@ -4,6 +4,11 @@ const getDashboard = async (req, res, next) => {
   try {
     const data = await clientService.getDashboard(req.user.id);
     res.json(data);
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getMyAddresses = async (req, res, next) => {
   try {
     const addresses = await clientService.getAddresses(req.user.id);
@@ -48,6 +53,11 @@ const deleteAccount = async (req, res, next) => {
   try {
     const result = await clientService.deleteAccount(req.user.id);
     res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
 const addMyAddress = async (req, res, next) => {
   try {
     const { street, city, zip, country } = req.body;
@@ -76,6 +86,6 @@ module.exports = {
   updatePassword,
   uploadAvatar,
   deleteAccount,
-  getMyAddresses, 
-  addMyAddress
+  getMyAddresses,
+  addMyAddress,
 };
