@@ -12,4 +12,7 @@ router.put("/password", clientController.updatePassword);
 router.post("/avatar", clientController.uploadAvatar);
 router.delete("/account", clientController.deleteAccount);
 
+router.get("/me/addresses", authenticate, clientController.getMyAddresses);
+router.post("/me/addresses", authenticate, clientController.addMyAddress);
+
 module.exports = router;

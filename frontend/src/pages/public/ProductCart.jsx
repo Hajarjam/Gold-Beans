@@ -60,7 +60,7 @@ function ProductCart() {
                               {item.size && <p className="text-sm text-gray-500">{item.size}</p>}
                               {item.grind && <p className="text-sm text-gray-500">Grind: {item.grind}</p>}
                             </div>
-                            <button 
+                            <button
                               onClick={() => removeFromCart(item._id)}
                               className="text-sm text-gray-500 hover:text-red-600 underline">
                               Remove
@@ -139,8 +139,13 @@ function ProductCart() {
                     </div>
                   </div>
 
+
+
                   <button className="w-full mt-8 bg-black text-white py-4 rounded-lg font-medium text-lg hover:bg-gray-900 transition duration-200">
-                    Continue to checkout
+                    <Link to="/client/payment">
+                      Continue to checkout
+                    </Link>
+
                   </button>
 
                   <p className="text-center text-sm text-gray-600 mt-6">

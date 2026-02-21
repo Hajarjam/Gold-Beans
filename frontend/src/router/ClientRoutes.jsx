@@ -12,6 +12,8 @@ import ClientDashboard from "../pages/client/clientDashboardPage";
 
 const ClientRoutes = () => {
   const { user, role } = useAuth();
+import PayementPage from "../pages/public/PayementPage";
+import OrderConfirmed from "../pages/public/OrderConfirmed";
 
   // redirect if not logged in
   if (!user) return <Navigate to="/login" replace />;
@@ -32,6 +34,9 @@ const ClientRoutes = () => {
         <Route path="coffees" element={<CoffeesPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="cart" element={<ProductCart />} />
+        <Route path="payment" element={<PayementPage />} />
+        <Route path="confirmed" element={<OrderConfirmed />} />
+        <Route path="*" element={<Navigate to="/client" replace />} />
       </Route>
 
       {/* fallback */}
