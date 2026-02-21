@@ -11,7 +11,7 @@ const ROASTS = [
     subtitle: "Ripe Fruit • Citrus • Berry Fruit",
     description:
       "A celebration of the coffee fruit—curated to highlight bright, sweet, and delicate flavors like jam, berry, and citrus.",
-    image: "/assets/beans/light.png",
+    image: "/assets/light.png",
   },
   {
     id: "medium",
@@ -19,7 +19,7 @@ const ROASTS = [
     subtitle: "Milk Chocolate • Nut • Sweet Vanilla",
     description:
       "Medium roast may be the most common style in the USA, but our smooth, expertly sourced coffees are anything but ordinary.",
-    image: "/assets/beans/medium.png",
+    image: "/assets/medium.png",
   },
   {
     id: "dark",
@@ -27,7 +27,7 @@ const ROASTS = [
     subtitle: "Roastiness • Milk Chocolate • Sweet Vanilla",
     description:
       "Boasts bold roasty flavor with balanced smokiness—for a consistently comforting cup you won't want to stop sipping.",
-    image: "/assets/beans/dark.png",
+    image: "/assets/dark.png",
   },
 ];
 
