@@ -9,11 +9,12 @@ import SubHistoryPage from "../pages/client/SubHistoryPage";
 import ProfilePage from "../pages/client/ProfilePage";
 import CoffeesPage from "../pages/public/CoffeesPage";
 import ClientDashboard from "../pages/client/clientDashboardPage";
+import PayementPage from "../pages/public/PayementPage";
+import OrderConfirmed from "../pages/public/OrderConfirmed";
+
 
 const ClientRoutes = () => {
   const { user, role } = useAuth();
-import PayementPage from "../pages/public/PayementPage";
-import OrderConfirmed from "../pages/public/OrderConfirmed";
 
   // redirect if not logged in
   if (!user) return <Navigate to="/login" replace />;
