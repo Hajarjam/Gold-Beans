@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useContext } from "react";
 import AuthContext from "./AuthContext";
 import publicApi from "../api/publicApi";
 
@@ -41,8 +42,9 @@ export default function AuthProvider({ children }) {
 
 
       const res = await publicApi.getCurrentUser(token);
-      setUser(res.user);
-      setRole(res.user.role);
+      const normalizedRole = res.user?.role === "user" ? "client" : res.user?.role;
+      setUser({ ...res.user, role: normalizedRole });
+      setRole(normalizedRole);
       setIsAuthenticated(true);
     } catch (error) {
       console.error("Auth Error:", error);
@@ -88,4 +90,8 @@ export default function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   );
+}
+
+export function useAuth() {
+  return useContext(AuthContext);
 }

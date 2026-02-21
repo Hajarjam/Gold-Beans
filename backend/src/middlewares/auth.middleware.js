@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
-const userRepo = require("../repositories/user.repository");
+const userRepo = require("../repositories/client.repository");
+const normalizeRole = (role) => (role === "user" ? "client" : role);
 
 const authenticate = async (req, res, next) => {
   const authHeader = req.headers.authorization;//Le frontend envoie le token dans le header HTTP 
@@ -13,7 +14,13 @@ const authenticate = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await userRepo.findById(decoded.id);
     if (!user) return res.status(401).json({ message: "Utilisateur non trouvé" });
-    req.user = { id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role };
+    req.user = {
+      id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: normalizeRole(user.role),
+    };
     next();
   } catch (err) {
     res.status(401).json({ message: "Token invalide" });

@@ -27,7 +27,7 @@ export default function LoginPage() {
             localStorage.setItem("user", JSON.stringify(response.user));//On stocke les infos utilisateur : pour afficher son nom/pour connaître son rôle/pour éviter de refaire une requête
             await refreshAuth();//"Vérifie si j’ai un token → si oui → je suis connecté"
             // Redirect to area according to role
-            const role = response.user?.role || "client";
+            const role = response.user?.role === "user" ? "client" : (response.user?.role || "client");
             if (role === "admin") {
                 navigate("/admin/");
             } else {

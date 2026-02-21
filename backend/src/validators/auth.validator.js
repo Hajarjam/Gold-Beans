@@ -16,7 +16,8 @@ const registerSchema = Joi.object({
       "any.required": "La confirmation du mot de passe est obligatoire",
     }),
 
-  role: Joi.string().valid("user", "admin", "livreur", "client").required(),
+  // Public register must not create admins
+  role: Joi.string().valid("user", "client").optional(),
 
   extraData: Joi.object().optional(),
 });
