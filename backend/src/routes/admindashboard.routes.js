@@ -4,6 +4,7 @@ const { getDashboardStats, getSalesMonth, getSalesWeek, getSalesYear, getBestSel
 const{getBestSellingMachines} = require("../controllers/machine.controller")
 const { authenticate, isAdmin } = require("../middlewares/auth.middleware");
 const { getAdminOrders, getAdminSubscriptions } = require("../controllers/admindata.controller");
+
 router.get("/", getDashboardStats);
 router.get("/sales/month", getSalesMonth);
 router.get("/sales/week", getSalesWeek);
