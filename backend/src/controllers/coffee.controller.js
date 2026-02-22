@@ -12,26 +12,17 @@ const path = require("path");
 const buildImageUrl = (img) =>
   `http://localhost:5001/uploads/coffees/${img}`;
 
-const formatSales = (agg, key) =>
-  agg.map((item) => ({
-    [key]: item._id.toString(),
-    sales: item.total,
-  }));
-
 /* =========================
    COFFEES CRUD
 ========================= */
 
-// GET all coffees
 const getAllCoffees = async (req, res) => {
   try {
     const coffees = await coffeeService.getAllCoffees();
-
     const coffeesWithImages = coffees.map((coffee) => ({
       ...coffee._doc,
       images: coffee.images.map(buildImageUrl),
     }));
-
     res.json(coffeesWithImages);
   } catch (err) {
     console.error(err);
@@ -39,7 +30,6 @@ const getAllCoffees = async (req, res) => {
   }
 };
 
-// GET coffee by ID
 const getCoffeeById = async (req, res, next) => {
   try {
     const coffee = await coffeeService.getCoffeeById(req.params.id);
@@ -52,7 +42,6 @@ const getCoffeeById = async (req, res, next) => {
   }
 };
 
-// CREATE coffee
 const createCoffee = async (req, res, next) => {
   try {
     const data = {
@@ -78,7 +67,6 @@ const createCoffee = async (req, res, next) => {
   }
 };
 
-// UPDATE coffee
 const updateCoffee = async (req, res, next) => {
   try {
     const data = {
@@ -108,7 +96,6 @@ const updateCoffee = async (req, res, next) => {
   }
 };
 
-// DELETE coffee
 const deleteCoffee = async (req, res, next) => {
   try {
     const coffee = await coffeeService.getCoffeeById(req.params.id);
@@ -116,12 +103,7 @@ const deleteCoffee = async (req, res, next) => {
 
     if (coffee.images?.length) {
       coffee.images.forEach((img) => {
-        const imagePath = path.join(
-          process.cwd(),
-          "uploads",
-          "coffees",
-          img
-        );
+        const imagePath = path.join(process.cwd(), "uploads", "coffees", img);
         fs.unlink(imagePath, (err) => {
           if (err) console.warn("Image delete error:", err.message);
         });
@@ -135,9 +117,9 @@ const deleteCoffee = async (req, res, next) => {
   }
 };
 
-/*
+/* =========================
    DASHBOARD
-*/
+========================= */
 
 const getDashboardStats = async (req, res) => {
   try {
@@ -145,43 +127,19 @@ const getDashboardStats = async (req, res) => {
     const totalMachines = await Machine.countDocuments();
 
     const coffeeAgg = await Coffee.aggregate([
-      {
-        $project: {
-          revenue: {
-            $multiply: [
-              { $ifNull: ["$sales", 0] }, // FIXED (lowercase)
-              { $ifNull: ["$price", 0] },
-            ],
-          },
-        },
-      },
+      { $project: { revenue: { $multiply: [{ $ifNull: ["$sales", 0] }, { $ifNull: ["$price", 0] }] } } },
       { $group: { _id: null, total: { $sum: "$revenue" } } },
     ]);
 
     const machineAgg = await Machine.aggregate([
-      {
-        $project: {
-          revenue: {
-            $multiply: [
-              { $ifNull: ["$sales", 0] },
-              { $ifNull: ["$price", 0] },
-            ],
-          },
-        },
-      },
+      { $project: { revenue: { $multiply: [{ $ifNull: ["$sales", 0] }, { $ifNull: ["$price", 0] }] } } },
       { $group: { _id: null, total: { $sum: "$revenue" } } },
     ]);
 
-    const totalRevenue =
-      (coffeeAgg[0]?.total || 0) + (machineAgg[0]?.total || 0);
+    const totalRevenue = (coffeeAgg[0]?.total || 0) + (machineAgg[0]?.total || 0);
 
-    const activeSubscriptions = await Subscription.countDocuments({
-      isActive: true,
-    });
-
-    const cancelledSubscriptions = await Subscription.countDocuments({
-      isCancelled: true,
-    });
+    const activeSubscriptions = await Subscription.countDocuments({ isActive: true });
+    const cancelledSubscriptions = await Subscription.countDocuments({ isCancelled: true });
 
     res.json({
       totalCoffees,
@@ -200,20 +158,17 @@ const getDashboardStats = async (req, res) => {
    SALES
 ========================= */
 
-// Top 3 best sellers
 const getBestSellers = async (req, res) => {
   try {
     const coffees = await Coffee.find().sort({ sales: -1 }).limit(3);
 
-    const result = coffees.map((coffee) => ({
+    const result = coffees.map((coffee, index) => ({
       _id: coffee._id,
       name: coffee.name,
       tasteProfile: coffee.tasteProfile,
       roast: coffee.roastLevel,
       sales: coffee.sales || 0,
-      image: coffee.images[0]
-        ? buildImageUrl(coffee.images[0])
-        : null,
+      image: coffee.images[0] ? buildImageUrl(coffee.images[0]) : null,
       images: coffee.images.map(buildImageUrl),
     }));
 
@@ -224,7 +179,15 @@ const getBestSellers = async (req, res) => {
   }
 };
 
-// Monthly sales (daily)
+// Helper to generate sales chart data
+const buildChartData = (agg, labelKey) => {
+  return agg.map((item) => ({
+    [labelKey]: item._id,
+    sales: item.total,
+  }));
+};
+
+// Daily sales (current month)
 const getSalesMonth = async (req, res) => {
   try {
     const now = new Date();
@@ -232,38 +195,18 @@ const getSalesMonth = async (req, res) => {
     const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
     const sales = await Subscription.aggregate([
-      {
-        $match: {
-          isActive: true,
-          isCancelled: false,
-          createdAt: { $gte: start, $lte: end },
-        },
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: {
-              format: "%Y-%m-%d",
-              date: "$createdAt",
-              timezone: "Africa/Casablanca",
-            },
-          },
-          total: { $sum: 1 },
-        },
-      },
+      { $match: { isActive: true, isCancelled: false, createdAt: { $gte: start, $lte: end } } },
+      { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt", timezone: "Africa/Casablanca" } }, total: { $sum: 1 } } },
       { $sort: { _id: 1 } },
     ]);
 
+    // Map day numbers for chart
     const daysInMonth = end.getDate();
     const result = [];
-
     for (let d = 1; d <= daysInMonth; d++) {
-      const date = `${start.getFullYear()}-${String(
-        start.getMonth() + 1
-      ).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-
-      const found = sales.find((s) => s._id === date);
-      result.push({ day: d.toString(), sales: found ? found.total : 0 });
+      const dayStr = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const found = sales.find((s) => s._id === dayStr);
+      result.push({ day: String(d), sales: found ? found.total : 0 });
     }
 
     res.json(result);
@@ -272,6 +215,7 @@ const getSalesMonth = async (req, res) => {
   }
 };
 
+// Weekly sales
 const getSalesWeek = async (req, res) => {
   try {
     const now = new Date();
@@ -280,25 +224,8 @@ const getSalesWeek = async (req, res) => {
     start.setHours(0, 0, 0, 0);
 
     const sales = await Subscription.aggregate([
-      {
-        $match: {
-          isActive: true,
-          isCancelled: false,
-          createdAt: { $gte: start, $lte: now },
-        },
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: {
-              format: "%Y-%m-%d",
-              date: "$createdAt",
-              timezone: "Africa/Casablanca",
-            },
-          },
-          total: { $sum: 1 },
-        },
-      },
+      { $match: { isActive: true, isCancelled: false, createdAt: { $gte: start, $lte: now } } },
+      { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt", timezone: "Africa/Casablanca" } }, total: { $sum: 1 } } },
       { $sort: { _id: 1 } },
     ]);
 
@@ -306,14 +233,9 @@ const getSalesWeek = async (req, res) => {
     for (let i = 0; i < 7; i++) {
       const d = new Date(start);
       d.setDate(start.getDate() + i);
-
       const key = d.toISOString().split("T")[0];
       const found = sales.find((s) => s._id === key);
-
-      result.push({
-        day: d.toLocaleDateString("en-US", { weekday: "short" }),
-        sales: found ? found.total : 0,
-      });
+      result.push({ day: d.toLocaleDateString("en-US", { weekday: "short" }), sales: found ? found.total : 0 });
     }
 
     res.json(result);
@@ -322,37 +244,18 @@ const getSalesWeek = async (req, res) => {
   }
 };
 
-
 // Yearly sales
 const getSalesYear = async (req, res) => {
   try {
     const year = new Date().getFullYear();
 
     const sales = await Subscription.aggregate([
-      {
-        $match: {
-          isActive: true,
-          isCancelled: false,
-          createdAt: {
-            $gte: new Date(year, 0, 1),
-            $lte: new Date(year, 11, 31, 23, 59, 59),
-          },
-        },
-      },
-      {
-        $group: {
-          _id: { $month: "$createdAt" },
-          total: { $sum: 1 },
-        },
-      },
+      { $match: { isActive: true, isCancelled: false, createdAt: { $gte: new Date(year, 0, 1), $lte: new Date(year, 11, 31, 23, 59, 59) } } },
+      { $group: { _id: { $month: "$createdAt" }, total: { $sum: 1 } } },
       { $sort: { _id: 1 } },
     ]);
 
-    const months = [
-      "Jan","Feb","Mar","Apr","May","Jun",
-      "Jul","Aug","Sep","Oct","Nov","Dec"
-    ];
-
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     const result = months.map((m, i) => {
       const found = sales.find((s) => s._id === i + 1);
       return { month: m, sales: found ? found.total : 0 };
@@ -363,56 +266,40 @@ const getSalesYear = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-// CUSTOM DATE RANGE SALES
+
+// Custom date range
 const getSalesRange = async (req, res) => {
   try {
     const { from, to } = req.query;
+    if (!from || !to) return res.status(400).json({ message: "Invalid range" });
 
     const start = new Date(from);
     const end = new Date(to);
 
     const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-
     let groupFormat = "%Y-%m-%d";
-    let label = "day";
+    let labelKey = "day";
 
     if (diffDays > 60 && diffDays <= 365) {
-      groupFormat = "%Y-%U"; // week
-      label = "week";
+      groupFormat = "%Y-%U"; // week number
+      labelKey = "week";
     } else if (diffDays > 365) {
       groupFormat = "%Y-%m"; // month
-      label = "month";
+      labelKey = "month";
     }
 
     const sales = await Subscription.aggregate([
-      {
-        $match: {
-          isActive: true,
-          isCancelled: false,
-          createdAt: { $gte: start, $lte: end },
-        },
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: {
-              format: groupFormat,
-              date: "$createdAt",
-              timezone: "Africa/Casablanca",
-            },
-          },
-          total: { $sum: 1 },
-        },
-      },
+      { $match: { isActive: true, isCancelled: false, createdAt: { $gte: start, $lte: end } } },
+      { $group: { _id: { $dateToString: { format: groupFormat, date: "$createdAt", timezone: "Africa/Casablanca" } }, total: { $sum: 1 } } },
       { $sort: { _id: 1 } },
     ]);
 
-    res.json({ label, data: sales });
+    const result = buildChartData(sales, labelKey);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 /* =========================
    EXPORTS
