@@ -103,71 +103,71 @@ export default function AdminLayout() {
   );
 
   return (
-    <div className="min-h-screen bg-[#F6EEE7] text-[#3B170D] flex">
-      {/* DESKTOP SIDEBAR */}
-      <aside className="hidden lg:block w-[260px] p-5">
-        <div className="h-[calc(100vh-40px)]">
-          <SidebarContent />
-        </div>
-      </aside>
+  <div className="min-h-screen bg-[#F6EEE7] text-[#3B170D]">
+    {/* DESKTOP SIDEBAR (FIXED) */}
+    <aside className="hidden lg:block fixed top-0 left-0 h-screen w-[260px] p-5">
+      <div className="h-[calc(100vh-40px)]">
+        <SidebarContent />
+      </div>
+    </aside>
 
-      {/* MOBILE DRAWER */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[999] lg:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileMenuOpen(false)} />
-          <div className="absolute left-0 top-0 h-full w-[290px] p-4">
-            <SidebarContent onNavigate={() => setMobileMenuOpen(false)} />
-          </div>
+    {/* MOBILE DRAWER */}
+    {mobileMenuOpen && (
+      <div className="fixed inset-0 z-[999] lg:hidden">
+        <div className="absolute inset-0 bg-black/40" onClick={() => setMobileMenuOpen(false)} />
+        <div className="absolute left-0 top-0 h-full w-[290px] p-4">
+          <SidebarContent onNavigate={() => setMobileMenuOpen(false)} />
         </div>
-      )}
+      </div>
+    )}
 
-      {/* MAIN */}
-      <main className="flex-1 p-4 lg:pr-5 lg:py-5">
-        <div className="rounded-3xl border border-[#EADFD7] bg-white shadow-sm">
-          {/* TOPBAR */}
-          <div className="h-16 lg:h-20 px-4 lg:px-6 flex items-center justify-between border-b border-[#EADFD7]">
-            <div className="flex items-center gap-3">
-              <button
-                className="lg:hidden w-10 h-10 rounded-2xl border border-[#EADFD7] bg-[#F6EEE7] grid place-items-center"
-                onClick={() => setMobileMenuOpen(true)}
-                type="button"
-                title="Menu"
-              >
-                <MenuIcon className="w-6 h-6 text-[#3B170D]" />
-              </button>
-              <div className="leading-tight">
-                <div className="text-base sm:text-lg lg:text-xl font-extrabold">
-                  Hello {form.firstName} {form.lastName}
-                </div>
-                <div className="hidden sm:block text-xs text-[#3B170D]/55">
-                  Manage your store from here.
-                </div>
+    {/* MAIN (add left padding on desktop to make room for fixed sidebar) */}
+    <main className="min-h-screen p-4 lg:pr-5 lg:py-5 lg:pl-[280px]">
+      <div className="rounded-3xl border border-[#EADFD7] bg-white shadow-sm">
+        {/* TOPBAR */}
+        <div className="h-16 lg:h-20 px-4 lg:px-6 flex items-center justify-between border-b border-[#EADFD7]">
+          <div className="flex items-center gap-3">
+            <button
+              className="lg:hidden w-10 h-10 rounded-2xl border border-[#EADFD7] bg-[#F6EEE7] grid place-items-center"
+              onClick={() => setMobileMenuOpen(true)}
+              type="button"
+              title="Menu"
+            >
+              <MenuIcon className="w-6 h-6 text-[#3B170D]" />
+            </button>
+            <div className="leading-tight">
+              <div className="text-base sm:text-lg lg:text-xl font-extrabold">
+                Hello {form.firstName} {form.lastName}
+              </div>
+              <div className="hidden sm:block text-xs text-[#3B170D]/55">
+                Manage your store from here.
               </div>
             </div>
-
-            <Link
-              to="/admin/me"
-              className="flex items-center gap-3 rounded-2xl border border-[#EADFD7] bg-[#F6EEE7] px-3 py-2 hover:opacity-90 transition"
-              title="Profile"
-            >
-              <div className="w-9 h-9 rounded-xl bg-[#3B170D] text-white grid place-items-center font-extrabold">
-                {initials}
-              </div>
-              <div className="hidden sm:block">
-                <div className="text-sm font-extrabold">Profile</div>
-                <div className="text-[11px] text-[#3B170D]/60">View & edit</div>
-              </div>
-            </Link>
           </div>
 
-          {/* CONTENT */}
-          <div className="p-4 sm:p-6">
-            <Outlet />
-          </div>
+          <Link
+            to="/admin/me"
+            className="flex items-center gap-3 rounded-2xl border border-[#EADFD7] bg-[#F6EEE7] px-3 py-2 hover:opacity-90 transition"
+            title="Profile"
+          >
+            <div className="w-9 h-9 rounded-xl bg-[#3B170D] text-white grid place-items-center font-extrabold">
+              {initials}
+            </div>
+            <div className="hidden sm:block">
+              <div className="text-sm font-extrabold">Profile</div>
+              <div className="text-[11px] text-[#3B170D]/60">View & edit</div>
+            </div>
+          </Link>
         </div>
-      </main>
-    </div>
-  );
+
+        {/* CONTENT */}
+        <div className="p-4 sm:p-6">
+          <Outlet />
+        </div>
+      </div>
+    </main>
+  </div>
+);
 }
 const DashboardIcon = (props) => (
   <svg {...props} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
