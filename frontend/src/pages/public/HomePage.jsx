@@ -483,7 +483,7 @@ export default function HomePage() {
             Elevate your coffee experience.
           </p>
 
-          <button className="bg-brown text-white rounded-lg px-5 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base font-instrument-sans font-semibold hover:bg-peach hover:text-brown transition">
+          <button onClick={() => navigate("/subscribe")} className="bg-brown text-white rounded-lg px-5 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base font-instrument-sans font-semibold hover:bg-peach hover:text-brown transition">
             Subscribe
           </button>
         </div>
