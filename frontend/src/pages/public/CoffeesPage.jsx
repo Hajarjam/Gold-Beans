@@ -4,7 +4,6 @@ import Filters from "../../components/common/Filters.component";
 import Pagination from "../../components/common/Pagination";
 import PeachLayout from "../../components/layouts/PeachLayout";
 import Breadcrumb from "../../components/common/Breadcrumb";
-import coffees from "../data/coffee_shop.coffees.json";
 
 import publicApi from "../../api/publicApi";
 

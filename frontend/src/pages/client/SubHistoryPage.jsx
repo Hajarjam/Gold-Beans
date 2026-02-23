@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
-import { MenuUser } from '../../components/layouts/user/MenuUser'
-import SubscriptionHistory from '../../components/layouts/user/SubscriptionHistory'
+import React, { useState } from "react";
+import { MenuUser } from "../../components/layouts/user/MenuUser";
+import SubscriptionHistory from "../../components/layouts/user/SubscriptionHistory";
 
 const SubHistoryPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -12,8 +12,7 @@ const SubHistoryPage = () => {
         <SubscriptionHistory />
       </div>
     </div>
-  )
+  );
 };
 
 export default SubHistoryPage;
-
