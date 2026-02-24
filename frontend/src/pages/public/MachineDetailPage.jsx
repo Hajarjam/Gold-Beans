@@ -67,7 +67,7 @@ export default function MachineDetailPage() {
         {" "}
         <Breadcrumb />
       </div>
-      <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 pt-24 md:pt-32">
+      <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 pt-24 md:pt-5">
         {loading && (
           <div className="flex justify-center items-center min-h-[400px]">
             <div className="text-center">

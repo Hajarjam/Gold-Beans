@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 const API_URL = process.env.REACT_APP_API_URLL;
+const getAuthToken = () => String(localStorage.getItem("authToken") || "").trim();
 
 const VisaIcon = () => (
   <svg viewBox="0 0 48 16" className="h-5 w-auto" fill="none">
@@ -45,12 +46,16 @@ export default function CheckoutPage() {
     expiration: "09/26", cvv: "145", savePayment: false,
   });
 
-  const token = localStorage.getItem("authToken");
-
   useEffect(() => {
     const loadMe = async () => {
       try {
-        const r = await fetch(`${API_URL}/api/users/me`, {
+        const token = getAuthToken();
+        if (!token) {
+          navigate("/login");
+          return;
+        }
+
+        const r = await fetch(`${API_URL}/api/client/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const me = await r.json();
@@ -63,7 +68,7 @@ export default function CheckoutPage() {
         }));
 
         // OPTIONNEL: charger dernière adresse
-        const r2 = await fetch(`${API_URL}/api/clients/me/addresses`, {
+        const r2 = await fetch(`${API_URL}/api/client/me/addresses`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -85,20 +90,20 @@ export default function CheckoutPage() {
       }
     };
 
-    if (token) loadMe();
-  }, [token]);
+    loadMe();
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
-  const getCartItems = () => {
-    const raw = localStorage.getItem("cartItems");
-    return raw ? JSON.parse(raw) : [];
-  };
-
   const onFakePay = async () => {
+    const token = getAuthToken();
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -111,7 +116,7 @@ export default function CheckoutPage() {
           it.productType === "subscription"
             ? "subscription"
             : it.productType || (it.grind || it.size || it.purchaseType ? "coffee" : "machine");
-        const productId = it._id || it.id || it.productId;
+        const productId = it.productId || it.id || it._id;
 
         return {
           productType: normalizedProductType,
@@ -119,8 +124,11 @@ export default function CheckoutPage() {
           name: it.name,
           price: Number(it.price || 0),
           quantity: Number(it.qty || 1),
-          buyOption: it.purchaseType || "oneTime",
+          buyOption: it.purchaseType || "one-time",
           deliveryEvery: it.deliveryFrequency || "",
+          grind: it.grind || "",
+          size: it.size || "",
+          roast: it.roast || "",
         };
       });
 

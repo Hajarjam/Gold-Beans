@@ -47,7 +47,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-peach-light text-brown font-sans overflow-hidden">
-      <header className="h-10 flex items-center items-stretch justify-between px-7 max-[980px]:px-4 py-10">
+      <header className="h-10 flex items-center  justify-between px-7 max-[980px]:px-4 py-10">
         <div className="flex items-center gap-1 min-w-[180px]">
           <div
           onClick={()=>navigate('/')}
@@ -57,13 +57,13 @@ export default function RegisterPage() {
             <img
               src="/assets/logo2.png"
               alt="Logo"
-              className="w-full h-full object-contain"
+              className="w-12 h-16 object-contain"
             />
           </div>
         </div>
       </header>
 
-      <main className="max-w-[1180px] mx-auto mt-3.5 mb-10 px-6 py-6 bg-brown/10  rounded-[5px]">
+      <main className="max-w-[1180px] mx-auto mt-3.5 mb-10 px-6 py-6 bg-brown/10  rounded-[5px] ">
         <section className="grid grid-cols-[1.1fr_.9fr] gap-10 items-stretch max-[980px]:grid-cols-1">
           <div className="rounded-[10px] overflow-hidden shadow-soft">
             <img
@@ -73,7 +73,7 @@ export default function RegisterPage() {
             />
           </div>
 
-          <div className="flex flex-col gap-3 justify-center h-[700px]  py-1.5 ">
+          <div className="flex flex-col gap-3 justify-center   py-1.5 h-fit">
             <h1 className="font-display font-instrument-serif text-center text-[50px] leading-[1.05] tracking-[.4px] mb-6 max-[980px]:text-[60px] t">
               Create Account
             </h1>

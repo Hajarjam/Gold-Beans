@@ -83,6 +83,7 @@ export default function CoffeeDetailPage() {
 
     const cartItem = {
       _id: product._id + "-" + selectedSize + "-" + selectedGrind,
+      productId: product._id,
       productType: "coffee",
       name: product.name,
       price: getPriceBySize() * (purchaseType === "subscribe" ? 0.9 : 1),
@@ -195,13 +196,13 @@ export default function CoffeeDetailPage() {
                           onClick={() => setIsSizeOpen(!isSizeOpen)}
                           className="w-full px-3 md:px-4 py-2 md:py-2.5 bg-white border border-peach rounded-lg text-xs md:text-sm text-charcoal focus:outline-none cursor-pointer appearance-none pr-8 md:pr-10"
                         >
-                          <option value="small">250g</option>
-                          <option value="medium">500g</option>
-                          <option value="large">1kg</option>
+                          <option value="small">Small: 250g (About 20cups)</option>
+                          <option value="medium">Medium: 500g (About 40cups)</option>
+                          <option value="large">Large: 1kg (About 80cups)</option>
                         </select>
                         <img
                           src="/assets/downarrow.png"
-                          className={`absolute right-2 md:right-3 top-1/2 transform -translate-y-1/2 w-2.5 md:w-3 h-2.5 md:h-3 transition-transform duration-300 pointer-events-none ${
+                          className={`absolute right-4 top-1/2 transform -translate-y-1/2 w-2.5 md:w-3 h-2.5 md:h-3 transition-transform duration-300 pointer-events-none ${
                             isSizeOpen ? "rotate-180" : ""
                           }`}
                         />
@@ -213,10 +214,10 @@ export default function CoffeeDetailPage() {
                       <label className="block text-xs md:text-sm font-bold text-charcoal mb-1 md:mb-2 font-instrument-sans">
                         Select Your Grind
                       </label>
-                      <div className="flex gap-2 md:gap-3">
+                      <div className="flex w-96">
                         <button
                           onClick={() => setSelectedGrind("whole-bean")}
-                          className={`flex-1 px-2 md:px-4 py-2 md:py-2.5 rounded-lg border flex items-center justify-center gap-1 md:gap-2 text-xs md:text-sm transition-colors ${
+                          className={`flex-1 px-2 md:px-8 py-8 md:py-2.5 rounded-lg border flex items-center text-center justify-center gap-1 md:gap-2 text-xs md:text-sm transition-colors ${
                             selectedGrind === "whole-bean"
                               ? "border-charcoal bg-white text-charcoal"
                               : "border-transparent bg-transparent text-dark-brown hover:border-charcoal"
@@ -228,7 +229,7 @@ export default function CoffeeDetailPage() {
                         </button>
                         <button
                           onClick={() => setSelectedGrind("ground")}
-                          className={`flex-1 px-2 md:px-4 py-2 md:py-2.5 rounded-lg border flex items-center justify-center gap-1 md:gap-2 text-xs md:text-sm transition-colors ${
+                          className={`flex-1 px-2 ml-4 md:px-8 py-2 md:py-2.5 rounded-lg border flex items-center justify-center gap-1 md:gap-2 text-xs md:text-sm transition-colors ${
                             selectedGrind === "ground"
                               ? "border-charcoal bg-white text-charcoal"
                               : "border-transparent bg-transparent text-dark-brown hover:border-charcoal"
@@ -285,7 +286,7 @@ export default function CoffeeDetailPage() {
                   </div>
 
                   {/* Column 3: Purchase Card */}
-                  <div className="bg-white rounded-lg border border-peach p-4 md:p-5 h-fit mt-8 md:mt-10 lg:mt-20 col-span-1 md:col-span-2 lg:col-span-1">
+                  <div className="bg-white rounded-lg border border-peach w-64 p-4 md:p-5 h-fit mt-8 md:mt-10 lg:mt-20 col-span-1 md:col-span-2 lg:col-span-1">
                     <div className="space-y-4">
                       {/* One-time */}
                       <label className="flex items-center justify-between cursor-pointer">
@@ -362,11 +363,11 @@ export default function CoffeeDetailPage() {
                         onClick={handleAddToCart}
                         disabled={added}
                         className={`w-full flex items-center justify-center gap-2 text-sm py-2.5 rounded-lg transition
-      ${
-        added
-          ? "bg-green-600 text-white cursor-default"
-          : "bg-charcoal text-white hover:bg-brown"
-      }`}
+                                    ${
+                                      added
+                                        ? "bg-green-600 text-white cursor-default"
+                                        : "bg-charcoal text-white hover:bg-brown"
+                                    }`}
                       >
                         {added ? (
                           <>
@@ -380,110 +381,88 @@ export default function CoffeeDetailPage() {
                     </div>
                   </div>
                 </div>
-                <div className="w-80 h-1 bg-brown mx-auto md:my-10 "></div>{" "}
-                {/* Product Information Section */}{" "}
-                <div className="px-2 md:px-6 py-8 md:py-10">
-                  {" "}
-                  <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-8 lg:gap-16">
-                    {" "}
-                    {/* Flavor Profile */}{" "}
+                <div className="w-96 mx-auto mb-2 md:mt-10 ">
+                  <hr className="border-brown "></hr>
+                </div>
+                {/* Product Information Section */}
+                <div className="px-2 md:px-6 py-2">
+                  <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-32">
+                    {/* Flavor Profile */}
                     <div className="flex-1 flex flex-col items-center mb-8 md:mb-0">
-                      {" "}
-                      <div className="w-16 md:w-20 h-16 md:h-20 bg-white rounded-full flex items-center justify-center mb-4 md:mb-6">
-                        {" "}
+                      <div className="w-16 md:w-20 h-16 md:h-20 bg-white rounded-full flex items-center justify-center mb-4 md:mb-6 ">
                         <img
                           src="/assets/taste&roast.png"
                           alt="Flavor profile"
-                        />{" "}
-                      </div>{" "}
+                        />
+                      </div>
                       <h3 className="text-sm md:text-base font-bold text-zinc-900 mb-4 md:mb-8">
-                        {" "}
-                        Flavor Profile :{" "}
-                      </h3>{" "}
+                        Flavor Profile :
+                      </h3>
                       <div className="w-full max-w-md">
-                        {" "}
                         <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-4 md:gap-6 mb-4 md:mb-8">
-                          {" "}
                           <div className="text-center md:text-left flex-shrink-0">
-                            {" "}
                             <div className="text-xs md:text-sm font-semibold text-brown mb-1">
-                              {" "}
-                              Roast Level :{" "}
-                            </div>{" "}
+                              Roast Level :
+                            </div>
                             <div className="text-xs md:text-sm text-grey">
-                              {" "}
-                              {product.roastLevel}{" "}
-                            </div>{" "}
-                          </div>{" "}
-                          <div className="hidden md:block w-px h-12 bg-brown flex-shrink-0"></div>{" "}
+                              {product.roastLevel}
+                            </div>
+                          </div>
+                          <div className="hidden md:block w-px h-12 bg-brown flex-shrink-0"></div>
                           <div className="text-center md:text-left flex-shrink-0">
-                            {" "}
                             <div className="text-xs md:text-sm font-semibold text-brown mb-1">
-                              {" "}
-                              Tasting Notes{" "}
-                            </div>{" "}
+                              Tasting Notes
+                            </div>
                             <div className="text-xs md:text-sm text-grey leading-relaxed">
-                              {" "}
                               {product.tasteProfile &&
-                                product.tasteProfile.join(", ")}{" "}
-                            </div>{" "}
-                          </div>{" "}
-                        </div>{" "}
-                      </div>{" "}
-                    </div>{" "}
-                    {/* Origin & Sourcing */}{" "}
-                    <div className="flex-1 flex flex-col items-center">
-                      {" "}
+                                product.tasteProfile.join(", ")}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {/* Origin & Sourcing */}
+                    <div className="flex-1 flex flex-col items-center mb-8">
                       <div className="w-16 md:w-20 h-16 md:h-20 bg-white rounded-full flex items-center justify-center mb-4 md:mb-6">
-                        {" "}
                         <img
                           src="/assets/Origin-source.png"
                           alt="Origin sourcing"
-                        />{" "}
-                      </div>{" "}
+                        />
+                      </div>
                       <h3 className="text-sm md:text-base font-bold text-zinc-900 mb-4 md:mb-8">
-                        {" "}
-                        Origin & Sourcing{" "}
-                      </h3>{" "}
+                        Origin & Sourcing
+                      </h3>
                       <div className="w-full max-w-md">
-                        {" "}
                         <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-4 md:gap-6">
-                          {" "}
                           <div className="text-center md:text-left flex-shrink-0">
-                            {" "}
                             <div className="text-xs md:text-sm font-semibold text-brown mb-1">
-                              {" "}
-                              Country of Origin :{" "}
-                            </div>{" "}
+                              Country of Origin :
+                            </div>
                             <div className="text-xs md:text-sm text-grey">
-                              {" "}
-                              {product.origin}{" "}
-                            </div>{" "}
-                          </div>{" "}
-                          <div className="hidden md:block w-px h-12 bg-brown flex-shrink-0"></div>{" "}
+                              {product.origin}
+                            </div>
+                          </div>
+                          <div className="hidden md:block w-px h-12 bg-brown flex-shrink-0"></div>
                           <div className="text-center md:text-left flex-shrink-0">
-                            {" "}
                             <div className="text-xs md:text-sm font-semibold text-brown mb-1">
-                              {" "}
-                              Intensity :{" "}
-                            </div>{" "}
+                              Intensity :
+                            </div>
                             <div className="text-xs md:text-sm text-grey">
-                              {" "}
-                              {"☕".repeat(product.intensity)} ({" "}
+                              {"☕".repeat(product.intensity)} (
                               {product.intensity}
-                              /5){" "}
-                            </div>{" "}
-                          </div>{" "}
-                        </div>{" "}
-                      </div>{" "}
-                    </div>{" "}
-                  </div>{" "}
-                </div>{" "}
+                              /5)
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        )}{" "}
-      </div>{" "}
+        )}
+      </div>
     </PeachLayout>
   );
 }
