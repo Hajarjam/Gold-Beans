@@ -35,12 +35,12 @@ const DeliveryCalendar = ({ deliveryDates = [] }) => {
   const next = () => setCurrent(new Date(year, month + 1, 1));
 
   return (
-    <div className="bg-transparent border-2 border-brown rounded-xl p-6 h-full flex flex-col">
+    <div className="bg-transparent border-2 border-brown rounded-xl p-6 h-full flex flex-col max-h-[600px]">
       <h2 className="flex justify-center items-center text-xl font-instrument-serif text-brown mb-4">
         Deliveries
       </h2>
 
-      <div className="bg-brown/45 rounded-xl p-4 flex-1">
+      <div className="bg-brown/45 rounded-xl p-4 flex-1 max-h-[500px]">
         <div className="flex items-center justify-between mb-3">
           <button
             onClick={prev}
