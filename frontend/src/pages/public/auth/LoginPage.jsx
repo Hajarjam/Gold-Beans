@@ -35,7 +35,7 @@ export default function LoginPage() {
       if (role === "admin") {
         navigate("/admin/");
       } else {
-        navigate("/client");
+        navigate("/");
       }
     } catch (err) {
       setError(err?.message || "Erreur lors de la connexion");
