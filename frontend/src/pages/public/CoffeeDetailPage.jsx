@@ -1,15 +1,19 @@
 import { useState, useEffect, useContext } from "react";
 import { Coffee, Minus, Plus, Check } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import PeachLayout from "../../components/layouts/PeachLayout";
 import Breadcrumb from "../../components/common/Breadcrumb";
+import AuthGateModal from "../../components/AuthGateModal";
 
 import publicApi from "../../api/publicApi";
+import { useAuth } from "../../contexts/AuthProvider";
 import { BreadcrumbContext } from "../../contexts/BreadcrumbContext";
 import CartContext from "../../contexts/CartContext";
 
 export default function CoffeeDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
   const { setBreadcrumbData } = useContext(BreadcrumbContext);
   const { addToCart } = useContext(CartContext);
 
@@ -25,6 +29,7 @@ export default function CoffeeDetailPage() {
   const [isSizeOpen, setIsSizeOpen] = useState(false);
   const [isDeliveryOpen, setIsDeliveryOpen] = useState(false);
   const [added, setAdded] = useState(false);
+  const [isAuthGateOpen, setIsAuthGateOpen] = useState(false);
 
   // Fetch product data
   useEffect(() => {
@@ -79,6 +84,15 @@ export default function CoffeeDetailPage() {
 
   // Add product to cart
   const handleAddToCart = () => {
+    const isUserAuthenticated = isAuthenticated || Boolean(user);
+
+    if (authLoading) return;
+
+    if (!isUserAuthenticated) {
+      setIsAuthGateOpen(true);
+      return;
+    }
+
     if (!product) return;
 
     const cartItem = {
@@ -131,7 +145,8 @@ export default function CoffeeDetailPage() {
   };
 
   return (
-    <PeachLayout>
+    <>
+      <PeachLayout>
       {/* Breadcrumb */}
       <div className="py-2 px-4 md:px-8 lg:px-12 flex flex-row">
         <Breadcrumb />
@@ -463,6 +478,13 @@ export default function CoffeeDetailPage() {
           </div>
         )}
       </div>
-    </PeachLayout>
+      </PeachLayout>
+      <AuthGateModal
+        isOpen={isAuthGateOpen}
+        onClose={() => setIsAuthGateOpen(false)}
+        onLogin={() => navigate("/login")}
+        onRegister={() => navigate("/register")}
+      />
+    </>
   );
 }

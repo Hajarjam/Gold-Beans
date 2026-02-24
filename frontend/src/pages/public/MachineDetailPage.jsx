@@ -1,20 +1,25 @@
 import { useState, useEffect, useContext } from "react";
 import { Minus, Plus } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import PeachLayout from "../../components/layouts/PeachLayout";
+import AuthGateModal from "../../components/AuthGateModal";
 import publicApi from "../../api/publicApi";
+import { useAuth } from "../../contexts/AuthProvider";
 import { BreadcrumbContext } from "../../contexts/BreadcrumbContext";
 import CartContext from "../../contexts/CartContext";
 import Breadcrumb from "../../components/common/Breadcrumb";
 
 export default function MachineDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
   const { setBreadcrumbData } = useContext(BreadcrumbContext);
   const { addToCart } = useContext(CartContext);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [isAuthGateOpen, setIsAuthGateOpen] = useState(false);
 
   // Fetch machine data from backend
   useEffect(() => {
@@ -44,6 +49,15 @@ export default function MachineDetailPage() {
   };
 
   const handleAddToCart = () => {
+    const isUserAuthenticated = isAuthenticated || Boolean(user);
+
+    if (authLoading) return;
+
+    if (!isUserAuthenticated) {
+      setIsAuthGateOpen(true);
+      return;
+    }
+
     if (!product) return;
 
     const cartItem = {
@@ -62,7 +76,8 @@ export default function MachineDetailPage() {
   };
 
   return (
-    <PeachLayout>
+    <>
+      <PeachLayout>
       <div className="py-2 px-4 md:px-8 lg:px-12 flex flex-row">
         {" "}
         <Breadcrumb />
@@ -274,6 +289,13 @@ export default function MachineDetailPage() {
           </div>
         )}
       </div>
-    </PeachLayout>
+      </PeachLayout>
+      <AuthGateModal
+        isOpen={isAuthGateOpen}
+        onClose={() => setIsAuthGateOpen(false)}
+        onLogin={() => navigate("/login")}
+        onRegister={() => navigate("/register")}
+      />
+    </>
   );
 }
