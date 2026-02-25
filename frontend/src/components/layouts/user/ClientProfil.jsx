@@ -49,6 +49,27 @@ const ClientProfile = () => {
       )}
 
       <div className="grid grid-cols-1 gap-6">
+        <section className="rounded-lg bg-white border border-[#EADFD7] shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            Current Information
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoItem
+              label="First Name"
+              value={profile?.firstName || "Not provided"}
+            />
+            <InfoItem
+              label="Last Name"
+              value={profile?.lastName || "Not provided"}
+            />
+            <InfoItem label="Email" value={profile?.email || "Not provided"} />
+            <InfoItem
+              label="Phone Number"
+              value={profile?.phone || "Not provided"}
+            />
+          </div>
+        </section>
+
         <ProfileForm profile={profile} onSave={updateProfile} saving={saving} />
 
         <PasswordForm onUpdatePassword={updatePassword} saving={saving} />
@@ -109,5 +130,12 @@ const ClientProfile = () => {
     </div>
   );
 };
+
+const InfoItem = ({ label, value }) => (
+  <div className="rounded-xl border border-[#EADFD7] bg-[#FDF9F5] px-3 py-2.5">
+    <p className="text-xs uppercase tracking-wide text-[#3B170D]/60">{label}</p>
+    <p className="mt-1 text-sm font-medium text-[#3B170D]">{value}</p>
+  </div>
+);
 
 export default ClientProfile;
