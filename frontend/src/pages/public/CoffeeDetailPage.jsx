@@ -1,15 +1,19 @@
 import { useState, useEffect, useContext } from "react";
-import { Coffee, Minus, Plus , Check } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { Coffee, Minus, Plus, Check } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
 import PeachLayout from "../../components/layouts/PeachLayout";
 import Breadcrumb from "../../components/common/Breadcrumb";
+import AuthGateModal from "../../components/AuthGateModal";
 
 import publicApi from "../../api/publicApi";
+import { useAuth } from "../../contexts/AuthProvider";
 import { BreadcrumbContext } from "../../contexts/BreadcrumbContext";
 import CartContext from "../../contexts/CartContext";
 
 export default function CoffeeDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
   const { setBreadcrumbData } = useContext(BreadcrumbContext);
   const { addToCart } = useContext(CartContext);
 
@@ -24,8 +28,8 @@ export default function CoffeeDetailPage() {
   const [deliveryFrequency, setDeliveryFrequency] = useState("2-weeks");
   const [isSizeOpen, setIsSizeOpen] = useState(false);
   const [isDeliveryOpen, setIsDeliveryOpen] = useState(false);
-  const [added, setAdded] = useState(false); 
-
+  const [added, setAdded] = useState(false);
+  const [isAuthGateOpen, setIsAuthGateOpen] = useState(false);
 
   // Fetch product data
   useEffect(() => {
@@ -79,31 +83,42 @@ export default function CoffeeDetailPage() {
   ).toFixed(2);
 
   // Add product to cart
-const handleAddToCart = () => {
-  if (!product) return;
+  const handleAddToCart = () => {
+    const isUserAuthenticated = isAuthenticated || Boolean(user);
 
-  const cartItem = {
-    _id: product._id + "-" + selectedSize + "-" + selectedGrind,
-    productType: "coffee",
-    name: product.name,
-    price: getPriceBySize() * (purchaseType === "subscribe" ? 0.9 : 1),
-    size: selectedSize,
-    grind: selectedGrind,
-    qty: quantity,
-    purchaseType,
-    deliveryFrequency: purchaseType === "subscribe" ? deliveryFrequency : null,
-    image:
-      product.images && product.images.length > 0
-        ? getMainImage()
-        : "/assets/columbianbrewcoffee.jpg",
+    if (authLoading) return;
+
+    if (!isUserAuthenticated) {
+      setIsAuthGateOpen(true);
+      return;
+    }
+
+    if (!product) return;
+
+    const cartItem = {
+      _id: product._id + "-" + selectedSize + "-" + selectedGrind,
+      productId: product._id,
+      productType: "coffee",
+      name: product.name,
+      price: getPriceBySize() * (purchaseType === "subscribe" ? 0.9 : 1),
+      size: selectedSize,
+      grind: selectedGrind,
+      qty: quantity,
+      purchaseType,
+      deliveryFrequency:
+        purchaseType === "subscribe" ? deliveryFrequency : null,
+      image:
+        product.images && product.images.length > 0
+          ? getMainImage()
+          : "/assets/columbianbrewcoffee.jpg",
+    };
+
+    addToCart(cartItem);
+
+    // Show added state
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500); // resets button after 1.5s
   };
-
-  addToCart(cartItem);
-
-  // Show added state
-  setAdded(true);
-  setTimeout(() => setAdded(false), 1500); // resets button after 1.5s
-};
 
   // Dynamic main image depending on bag size
   const getMainImage = () => {
@@ -130,12 +145,13 @@ const handleAddToCart = () => {
   };
 
   return (
-    <PeachLayout>
+    <>
+      <PeachLayout>
       {/* Breadcrumb */}
       <div className="py-2 px-4 md:px-8 lg:px-12 flex flex-row">
         <Breadcrumb />
       </div>
-      <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 pt-24 md:pt-32">
+      <div className="max-w-[1200px]  mx-auto   md:px-6 lg:px-8 py-4 md:py-6 pt-6 md:pt-5">
         {/* Loading state */}
         {loading && (
           <div className="flex justify-center items-center min-h-[400px]">
@@ -157,7 +173,7 @@ const handleAddToCart = () => {
         {product && (
           <div>
             {/* Main product section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[360px_1fr_300px] gap-5 md:gap-6 mb-8 md:mb-12">
+            <div className="flex gap-12 md:gap-10 mb-8 md:mb-12">
               {/* Column 1: Main Image */}
               <div>
                 <div className="rounded-lg overflow-hidden">
@@ -169,312 +185,306 @@ const handleAddToCart = () => {
                 </div>
               </div>
 
-              {/* Column 2: Details (Name, Description, Options) */}
-              <div className="space-y-6">
-                {/* Product name & description */}
-                <div>
-                  <h1 className="text-2xl md:text-4xl font-bold font-instrument-serif text-charcoal mb-2 md:mb-3">
-                    {product.name}
-                  </h1>
-                  <p className="text-xs md:text-sm text-dark-brown leading-relaxed font-instrument-sans">
-                    {product.description}
-                  </p>
-                </div>
-
-                {/* Bag Size */}
-                <div>
-                  <label className="block text-xs md:text-sm font-bold text-charcoal mb-1 md:mb-2 font-instrument-sans">
-                    Bag Size
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={selectedSize}
-                      onChange={(e) => setSelectedSize(e.target.value)}
-                      onClick={() => setIsSizeOpen(!isSizeOpen)}
-                      className="w-full px-3 md:px-4 py-2 md:py-2.5 bg-white border border-peach rounded-lg text-xs md:text-sm text-charcoal focus:outline-none cursor-pointer appearance-none pr-8 md:pr-10"
-                    >
-                      <option value="small">250g</option>
-                      <option value="medium">500g</option>
-                      <option value="large">1kg</option>
-                    </select>
-                    <img
-                      src="/assets/downarrow.png"
-                      className={`absolute right-2 md:right-3 top-1/2 transform -translate-y-1/2 w-2.5 md:w-3 h-2.5 md:h-3 transition-transform duration-300 pointer-events-none ${
-                        isSizeOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </div>
-                </div>
-
-                {/* Grind */}
-                <div>
-                  <label className="block text-xs md:text-sm font-bold text-charcoal mb-1 md:mb-2 font-instrument-sans">
-                    Select Your Grind
-                  </label>
-                  <div className="flex gap-2 md:gap-3">
-                    <button
-                      onClick={() => setSelectedGrind("whole-bean")}
-                      className={`flex-1 px-2 md:px-4 py-2 md:py-2.5 rounded-lg border flex items-center justify-center gap-1 md:gap-2 text-xs md:text-sm transition-colors ${
-                        selectedGrind === "whole-bean"
-                          ? "border-charcoal bg-white text-charcoal"
-                          : "border-transparent bg-transparent text-dark-brown hover:border-charcoal"
-                      }`}
-                    >
-                      <Coffee className="w-3 md:w-4 h-3 md:h-4" />
-                      <span className="hidden sm:inline">Whole Bean</span>
-                      <span className="sm:hidden">Whole</span>
-                    </button>
-                    <button
-                      onClick={() => setSelectedGrind("ground")}
-                      className={`flex-1 px-2 md:px-4 py-2 md:py-2.5 rounded-lg border flex items-center justify-center gap-1 md:gap-2 text-xs md:text-sm transition-colors ${
-                        selectedGrind === "ground"
-                          ? "border-charcoal bg-white text-charcoal"
-                          : "border-transparent bg-transparent text-dark-brown hover:border-charcoal"
-                      }`}
-                    >
-                      <svg
-                        className="w-3 md:w-4 h-3 md:h-4"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <circle cx="12" cy="12" r="2" />
-                        <circle cx="6" cy="8" r="1.5" />
-                        <circle cx="18" cy="8" r="1.5" />
-                        <circle cx="6" cy="16" r="1.5" />
-                        <circle cx="18" cy="16" r="1.5" />
-                      </svg>
-                      Ground
-                    </button>
-                  </div>
-                </div>
-
-                {/* Quantity */}
-                <div>
-                  <label className="block text-xs md:text-sm font-bold text-charcoal mb-1 md:mb-2 font-instrument-sans">
-                    Quantity
-                  </label>
-                  <div className="inline-flex items-center border border-peach rounded-lg bg-white">
-                    <button
-                      onClick={() => handleQuantityChange(-1)}
-                      className="px-2 md:px-4 py-1.5 md:py-2 hover:bg-peach-light transition-colors text-charcoal"
-                    >
-                      <Minus className="w-3 md:w-4 h-3 md:h-4" />
-                    </button>
-                    <input
-                      type="number"
-                      value={quantity}
-                      onChange={(e) =>
-                        setQuantity(Math.max(1, parseInt(e.target.value) || 1))
-                      }
-                      className="w-8 md:w-12 text-center border-x border-peach py-1.5 md:py-2 focus:outline-none text-charcoal text-xs md:text-sm"
-                    />
-                    <button
-                      onClick={() => handleQuantityChange(1)}
-                      className="px-2 md:px-4 py-1.5 md:py-2 hover:bg-peach-light transition-colors text-charcoal"
-                    >
-                      <Plus className="w-3 md:w-4 h-3 md:h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Column 3: Purchase Card */}
-              <div className="bg-white rounded-lg border border-peach p-4 md:p-5 h-fit mt-8 md:mt-10 lg:mt-20 col-span-1 md:col-span-2 lg:col-span-1">
-                <div className="space-y-4">
-                  {/* One-time */}
-                  <label className="flex items-center justify-between cursor-pointer">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="purchase-type"
-                        value="one-time"
-                        checked={purchaseType === "one-time"}
-                        onChange={(e) => setPurchaseType(e.target.value)}
-                        className="w-4 h-4"
-                      />
-                      <span className="text-sm text-charcoal font-instrument-sans">
-                        One-time Purchase
-                      </span>
+              <div>
+                <div className="flex justify-between">
+                  {/* Column 2: Details (Name, Description, Options) */}
+                  <div className="space-y-6">
+                    {/* Product name & description */}
+                    <div>
+                      <h1 className="text-2xl md:text-4xl font-bold font-instrument-serif text-charcoal mb-2 md:mb-3">
+                        {product.name}
+                      </h1>
+                      <p className="text-xs md:text-sm text-dark-brown leading-relaxed font-instrument-sans">
+                        {product.description}
+                      </p>
                     </div>
-                    <span className="text-sm font-semibold text-charcoal">
-                      ${(getPriceBySize() * quantity).toFixed(2)}
-                    </span>
-                  </label>
 
-                  {/* Subscribe */}
-                  <label className="flex items-center justify-between cursor-pointer">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="purchase-type"
-                        value="subscribe"
-                        checked={purchaseType === "subscribe"}
-                        onChange={(e) => setPurchaseType(e.target.value)}
-                        className="w-4 h-4"
-                      />
-                      <span className="text-sm text-charcoal font-instrument-sans">
-                        Subscribe
-                      </span>
-                    </div>
-                    <span className="text-sm font-semibold text-charcoal">
-                      ${(getPriceBySize() * 0.9 * quantity).toFixed(2)}
-                    </span>
-                  </label>
-
-                  {/* Delivery frequency */}
-                  {purchaseType === "subscribe" && (
-                    <div className="pt-2">
-                      <label className="block text-xs md:text-sm text-dark-brown mb-1 md:mb-2 font-instrument-sans">
-                        Deliver every
+                    {/* Bag Size */}
+                    <div>
+                      <label className="block text-xs md:text-sm font-bold text-charcoal mb-1 md:mb-2 font-instrument-sans">
+                        Bag Size
                       </label>
                       <div className="relative">
                         <select
-                          value={deliveryFrequency}
-                          onChange={(e) => setDeliveryFrequency(e.target.value)}
-                          onClick={() => setIsDeliveryOpen(!isDeliveryOpen)}
-                          className="w-full px-3 py-2 bg-white border border-peach-light rounded-lg text-xs md:text-sm text-charcoal focus:outline-none focus:border-peach cursor-pointer appearance-none pr-8"
+                          value={selectedSize}
+                          onChange={(e) => setSelectedSize(e.target.value)}
+                          onClick={() => setIsSizeOpen(!isSizeOpen)}
+                          className="w-full px-3 md:px-4 py-2 md:py-2.5 bg-white border border-peach rounded-lg text-xs md:text-sm text-charcoal focus:outline-none cursor-pointer appearance-none pr-8 md:pr-10"
                         >
-                          <option value="1-week">Every week</option>
-                          <option value="2-weeks">Every 2 weeks</option>
-                          <option value="3-weeks">Every 3 weeks</option>
-                          <option value="1-month">Monthly</option>
+                          <option value="small">Small: 250g (About 20cups)</option>
+                          <option value="medium">Medium: 500g (About 40cups)</option>
+                          <option value="large">Large: 1kg (About 80cups)</option>
                         </select>
                         <img
                           src="/assets/downarrow.png"
-                          className={`absolute right-2 md:right-3 top-1/2 transform -translate-y-1/2 w-2.5 md:w-3 h-2.5 md:h-3 transition-transform duration-300 pointer-events-none ${
-                            isDeliveryOpen ? "rotate-180" : ""
+                          className={`absolute right-4 top-1/2 transform -translate-y-1/2 w-2.5 md:w-3 h-2.5 md:h-3 transition-transform duration-300 pointer-events-none ${
+                            isSizeOpen ? "rotate-180" : ""
                           }`}
                         />
                       </div>
                     </div>
-                  )}
 
-                 {/* ADD TO CART INDICATOR */}
-             <button
-  onClick={handleAddToCart}
-  disabled={added}
-  className={`w-full flex items-center justify-center gap-2 text-sm py-2.5 rounded-lg transition
-    ${
-      added
-        ? "bg-green-600 text-white cursor-default"
-        : "bg-charcoal text-white hover:bg-brown"
-    }`}
->
-  {added ? (
-    <>
-      <Check className="w-4 h-4" />
-      Added to Cart
-    </>
-  ) : (
-    "Add to Cart"
-  )}
-</button>
+                    {/* Grind */}
+                    <div>
+                      <label className="block text-xs md:text-sm font-bold text-charcoal mb-1 md:mb-2 font-instrument-sans">
+                        Select Your Grind
+                      </label>
+                      <div className="flex w-96">
+                        <button
+                          onClick={() => setSelectedGrind("whole-bean")}
+                          className={`flex-1 px-2 md:px-8 py-8 md:py-2.5 rounded-lg border flex items-center text-center justify-center gap-1 md:gap-2 text-xs md:text-sm transition-colors ${
+                            selectedGrind === "whole-bean"
+                              ? "border-charcoal bg-white text-charcoal"
+                              : "border-transparent bg-transparent text-dark-brown hover:border-charcoal"
+                          }`}
+                        >
+                          <Coffee className="w-3 md:w-4 h-3 md:h-4" />
+                          <span className="hidden sm:inline">Whole Bean</span>
+                          <span className="sm:hidden">Whole</span>
+                        </button>
+                        <button
+                          onClick={() => setSelectedGrind("ground")}
+                          className={`flex-1 px-2 ml-4 md:px-8 py-2 md:py-2.5 rounded-lg border flex items-center justify-center gap-1 md:gap-2 text-xs md:text-sm transition-colors ${
+                            selectedGrind === "ground"
+                              ? "border-charcoal bg-white text-charcoal"
+                              : "border-transparent bg-transparent text-dark-brown hover:border-charcoal"
+                          }`}
+                        >
+                          <svg
+                            className="w-3 md:w-4 h-3 md:h-4"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <circle cx="12" cy="12" r="2" />
+                            <circle cx="6" cy="8" r="1.5" />
+                            <circle cx="18" cy="8" r="1.5" />
+                            <circle cx="6" cy="16" r="1.5" />
+                            <circle cx="18" cy="16" r="1.5" />
+                          </svg>
+                          Ground
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Quantity */}
+                    <div>
+                      <label className="block text-xs md:text-sm font-bold text-charcoal mb-1 md:mb-2 font-instrument-sans">
+                        Quantity
+                      </label>
+                      <div className="inline-flex items-center border border-peach rounded-lg bg-white">
+                        <button
+                          onClick={() => handleQuantityChange(-1)}
+                          className="px-2 md:px-4 py-1.5 md:py-2 hover:bg-peach-light transition-colors text-charcoal"
+                        >
+                          <Minus className="w-3 md:w-4 h-3 md:h-4" />
+                        </button>
+                        <input
+                          type="number"
+                          value={quantity}
+                          onChange={(e) =>
+                            setQuantity(
+                              Math.max(1, parseInt(e.target.value) || 1),
+                            )
+                          }
+                          className="w-8 md:w-12 text-center border-x border-peach py-1.5 md:py-2 focus:outline-none text-charcoal text-xs md:text-sm"
+                        />
+                        <button
+                          onClick={() => handleQuantityChange(1)}
+                          className="px-2 md:px-4 py-1.5 md:py-2 hover:bg-peach-light transition-colors text-charcoal"
+                        >
+                          <Plus className="w-3 md:w-4 h-3 md:h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Column 3: Purchase Card */}
+                  <div className="bg-white rounded-lg border border-peach w-64 p-4 md:p-5 h-fit mt-8 md:mt-10 lg:mt-20 col-span-1 md:col-span-2 lg:col-span-1">
+                    <div className="space-y-4">
+                      {/* One-time */}
+                      <label className="flex items-center justify-between cursor-pointer">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name="purchase-type"
+                            value="one-time"
+                            checked={purchaseType === "one-time"}
+                            onChange={(e) => setPurchaseType(e.target.value)}
+                            className="w-4 h-4"
+                          />
+                          <span className="text-sm text-charcoal font-instrument-sans">
+                            One-time Purchase
+                          </span>
+                        </div>
+                        <span className="text-sm font-semibold text-charcoal">
+                          ${(getPriceBySize() * quantity).toFixed(2)}
+                        </span>
+                      </label>
+
+                      {/* Subscribe */}
+                      <label className="flex items-center justify-between cursor-pointer">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name="purchase-type"
+                            value="subscribe"
+                            checked={purchaseType === "subscribe"}
+                            onChange={(e) => setPurchaseType(e.target.value)}
+                            className="w-4 h-4"
+                          />
+                          <span className="text-sm text-charcoal font-instrument-sans">
+                            Subscribe
+                          </span>
+                        </div>
+                        <span className="text-sm font-semibold text-charcoal">
+                          ${(getPriceBySize() * 0.9 * quantity).toFixed(2)}
+                        </span>
+                      </label>
+
+                      {/* Delivery frequency */}
+                      {purchaseType === "subscribe" && (
+                        <div className="pt-2">
+                          <label className="block text-xs md:text-sm text-dark-brown mb-1 md:mb-2 font-instrument-sans">
+                            Deliver every
+                          </label>
+                          <div className="relative">
+                            <select
+                              value={deliveryFrequency}
+                              onChange={(e) =>
+                                setDeliveryFrequency(e.target.value)
+                              }
+                              onClick={() => setIsDeliveryOpen(!isDeliveryOpen)}
+                              className="w-full px-3 py-2 bg-white border border-peach-light rounded-lg text-xs md:text-sm text-charcoal focus:outline-none focus:border-peach cursor-pointer appearance-none pr-8"
+                            >
+                              <option value="1-week">Every week</option>
+                              <option value="2-weeks">Every 2 weeks</option>
+                              <option value="3-weeks">Every 3 weeks</option>
+                              <option value="1-month">Monthly</option>
+                            </select>
+                            <img
+                              src="/assets/downarrow.png"
+                              className={`absolute right-2 md:right-3 top-1/2 transform -translate-y-1/2 w-2.5 md:w-3 h-2.5 md:h-3 transition-transform duration-300 pointer-events-none ${
+                                isDeliveryOpen ? "rotate-180" : ""
+                              }`}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ADD TO CART INDICATOR */}
+                      <button
+                        onClick={handleAddToCart}
+                        disabled={added}
+                        className={`w-full flex items-center justify-center gap-2 text-sm py-2.5 rounded-lg transition
+                                    ${
+                                      added
+                                        ? "bg-green-600 text-white cursor-default"
+                                        : "bg-charcoal text-white hover:bg-brown"
+                                    }`}
+                      >
+                        {added ? (
+                          <>
+                            <Check className="w-4 h-4" />
+                            Added to Cart
+                          </>
+                        ) : (
+                          "Add to Cart"
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div className="w-96 mx-auto mb-2 md:mt-10 ">
+                  <hr className="border-brown "></hr>
+                </div>
+                {/* Product Information Section */}
+                <div className="px-2 md:px-6 py-2">
+                  <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-32">
+                    {/* Flavor Profile */}
+                    <div className="flex-1 flex flex-col items-center mb-8 md:mb-0">
+                      <div className="w-16 md:w-20 h-16 md:h-20 bg-white rounded-full flex items-center justify-center mb-4 md:mb-6 ">
+                        <img
+                          src="/assets/taste&roast.png"
+                          alt="Flavor profile"
+                        />
+                      </div>
+                      <h3 className="text-sm md:text-base font-bold text-zinc-900 mb-4 md:mb-8">
+                        Flavor Profile :
+                      </h3>
+                      <div className="w-full max-w-md">
+                        <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-4 md:gap-6 mb-4 md:mb-8">
+                          <div className="text-center md:text-left flex-shrink-0">
+                            <div className="text-xs md:text-sm font-semibold text-brown mb-1">
+                              Roast Level :
+                            </div>
+                            <div className="text-xs md:text-sm text-grey">
+                              {product.roastLevel}
+                            </div>
+                          </div>
+                          <div className="hidden md:block w-px h-12 bg-brown flex-shrink-0"></div>
+                          <div className="text-center md:text-left flex-shrink-0">
+                            <div className="text-xs md:text-sm font-semibold text-brown mb-1">
+                              Tasting Notes
+                            </div>
+                            <div className="text-xs md:text-sm text-grey leading-relaxed">
+                              {product.tasteProfile &&
+                                product.tasteProfile.join(", ")}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {/* Origin & Sourcing */}
+                    <div className="flex-1 flex flex-col items-center mb-8">
+                      <div className="w-16 md:w-20 h-16 md:h-20 bg-white rounded-full flex items-center justify-center mb-4 md:mb-6">
+                        <img
+                          src="/assets/Origin-source.png"
+                          alt="Origin sourcing"
+                        />
+                      </div>
+                      <h3 className="text-sm md:text-base font-bold text-zinc-900 mb-4 md:mb-8">
+                        Origin & Sourcing
+                      </h3>
+                      <div className="w-full max-w-md">
+                        <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-4 md:gap-6">
+                          <div className="text-center md:text-left flex-shrink-0">
+                            <div className="text-xs md:text-sm font-semibold text-brown mb-1">
+                              Country of Origin :
+                            </div>
+                            <div className="text-xs md:text-sm text-grey">
+                              {product.origin}
+                            </div>
+                          </div>
+                          <div className="hidden md:block w-px h-12 bg-brown flex-shrink-0"></div>
+                          <div className="text-center md:text-left flex-shrink-0">
+                            <div className="text-xs md:text-sm font-semibold text-brown mb-1">
+                              Intensity :
+                            </div>
+                            <div className="text-xs md:text-sm text-grey">
+                              {"☕".repeat(product.intensity)} (
+                              {product.intensity}
+                              /5)
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="border-t border-brown my-[20px] md:my-10"></div>{" "}
-            {/* Product Information Section */}{" "}
-            <div className="px-2 md:px-6 py-8 md:py-10">
-              {" "}
-              <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-between gap-8 lg:gap-16">
-                {" "}
-                {/* Flavor Profile */}{" "}
-                <div className="flex-1 flex flex-col items-center mb-8 md:mb-0">
-                  {" "}
-                  <div className="w-16 md:w-20 h-16 md:h-20 bg-white rounded-full flex items-center justify-center mb-4 md:mb-6">
-                    {" "}
-                    <img
-                      src="/assets/taste&roast.png"
-                      alt="Flavor profile"
-                    />{" "}
-                  </div>{" "}
-                  <h3 className="text-sm md:text-base font-bold text-zinc-900 mb-4 md:mb-8">
-                    {" "}
-                    Flavor Profile :{" "}
-                  </h3>{" "}
-                  <div className="w-full max-w-md">
-                    {" "}
-                    <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-4 md:gap-6 mb-4 md:mb-8">
-                      {" "}
-                      <div className="text-center md:text-left flex-shrink-0">
-                        {" "}
-                        <div className="text-xs md:text-sm font-semibold text-brown mb-1">
-                          {" "}
-                          Roast Level :{" "}
-                        </div>{" "}
-                        <div className="text-xs md:text-sm text-grey">
-                          {" "}
-                          {product.roastLevel}{" "}
-                        </div>{" "}
-                      </div>{" "}
-                      <div className="hidden md:block w-px h-12 bg-brown flex-shrink-0"></div>{" "}
-                      <div className="text-center md:text-left flex-shrink-0">
-                        {" "}
-                        <div className="text-xs md:text-sm font-semibold text-brown mb-1">
-                          {" "}
-                          Tasting Notes{" "}
-                        </div>{" "}
-                        <div className="text-xs md:text-sm text-grey leading-relaxed">
-                          {" "}
-                          {product.tasteProfile &&
-                            product.tasteProfile.join(", ")}{" "}
-                        </div>{" "}
-                      </div>{" "}
-                    </div>{" "}
-                  </div>{" "}
-                </div>{" "}
-                {/* Origin & Sourcing */}{" "}
-                <div className="flex-1 flex flex-col items-center">
-                  {" "}
-                  <div className="w-16 md:w-20 h-16 md:h-20 bg-white rounded-full flex items-center justify-center mb-4 md:mb-6">
-                    {" "}
-                    <img
-                      src="/assets/Origin-source.png"
-                      alt="Origin sourcing"
-                    />{" "}
-                  </div>{" "}
-                  <h3 className="text-sm md:text-base font-bold text-zinc-900 mb-4 md:mb-8">
-                    {" "}
-                    Origin & Sourcing{" "}
-                  </h3>{" "}
-                  <div className="w-full max-w-md">
-                    {" "}
-                    <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-4 md:gap-6">
-                      {" "}
-                      <div className="text-center md:text-left flex-shrink-0">
-                        {" "}
-                        <div className="text-xs md:text-sm font-semibold text-brown mb-1">
-                          {" "}
-                          Country of Origin :{" "}
-                        </div>{" "}
-                        <div className="text-xs md:text-sm text-grey">
-                          {" "}
-                          {product.origin}{" "}
-                        </div>{" "}
-                      </div>{" "}
-                      <div className="hidden md:block w-px h-12 bg-brown flex-shrink-0"></div>{" "}
-                      <div className="text-center md:text-left flex-shrink-0">
-                        {" "}
-                        <div className="text-xs md:text-sm font-semibold text-brown mb-1">
-                          {" "}
-                          Intensity :{" "}
-                        </div>{" "}
-                        <div className="text-xs md:text-sm text-grey">
-                          {" "}
-                          {"☕".repeat(product.intensity)} ( {product.intensity}
-                          /5){" "}
-                        </div>{" "}
-                      </div>{" "}
-                    </div>{" "}
-                  </div>{" "}
-                </div>{" "}
-              </div>{" "}
-            </div>{" "}
           </div>
-        )}{" "}
-      </div>{" "}
-    </PeachLayout>
+        )}
+      </div>
+      </PeachLayout>
+      <AuthGateModal
+        isOpen={isAuthGateOpen}
+        onClose={() => setIsAuthGateOpen(false)}
+        onLogin={() => navigate("/login")}
+        onRegister={() => navigate("/register")}
+      />
+    </>
   );
 }

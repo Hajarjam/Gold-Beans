@@ -46,7 +46,7 @@ const fakeCheckout = async (req, res, next) => {
 
     const last4 = String(cardNumber || "").replace(/\s+/g, "").slice(-4);
 
-    const order = await checkoutService.createFakeOrder({
+    const result = await checkoutService.createFakeCheckout({
       userId,
       items,
       shippingAddress: {
@@ -64,7 +64,17 @@ const fakeCheckout = async (req, res, next) => {
       },
     });
 
-    res.status(201).json({ message: "Order confirmed (fake payment)", data: order });
+    const oneTimeCount = result?.order ? 1 : 0;
+    const subscriptionCount = Array.isArray(result?.subscriptions) ? result.subscriptions.length : 0;
+
+    res.status(201).json({
+      message: "Checkout confirmed (fake payment)",
+      data: result,
+      summary: {
+        ordersCreated: oneTimeCount,
+        subscriptionsCreated: subscriptionCount,
+      },
+    });
   } catch (err) {
     next(err);
   }

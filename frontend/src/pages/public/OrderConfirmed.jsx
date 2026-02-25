@@ -5,12 +5,13 @@ import Footer from "../../components/common/Footer";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const API_URL = process.env.REACT_APP_API_URLL;
+const getAuthToken = () => String(localStorage.getItem("authToken") || "").trim();
 
 export default function OrderConfirmed() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const token = localStorage.getItem("authToken");
+  const token = getAuthToken();
 
   // 1) order venant du navigate state
   const stateOrder = location.state?.order;
@@ -34,7 +35,7 @@ export default function OrderConfirmed() {
 
     const loadMe = async () => {
       try {
-        const r = await fetch(`${API_URL}/api/users/me`, {
+        const r = await fetch(`${API_URL}/api/client/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await r.json();

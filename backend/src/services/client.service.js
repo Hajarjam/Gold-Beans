@@ -32,7 +32,7 @@ const getAllClients = async ({ search = "", sort = "firstNameAsc", role = "" } =
   return clients.map((c) => ({ ...c, role: normalizeRole(c.role) }));
 };
 
-const safeClient = "firstName lastName email role isActive createdAt updatedAt";
+const safeClient = "firstName lastName email phone role isActive createdAt updatedAt";
 
 const getClientById = async (id) => {
   const client = await Client.findById(id).select(safeClient).lean();
@@ -131,11 +131,12 @@ const updateClient = async (id, payload) => {
       firstName: payload.firstName,
       lastName: payload.lastName,
       email: payload.email,
+      phone: payload.phone,
       role: normalizeRole(payload.role),
       isActive: payload.isActive,
     },
     { new: true, runValidators: true }
-  ).select("firstName lastName email role isActive createdAt");
+  ).select("firstName lastName email phone role isActive createdAt");
 
   if (!updated) throw new Error("Client introuvable");
   return updated;
@@ -167,6 +168,7 @@ const updateProfile = async (id, payload, email) => {
   if (payload.firstName !== undefined) updates.firstName = payload.firstName;
   if (payload.lastName !== undefined) updates.lastName = payload.lastName;
   if (payload.email !== undefined) updates.email = payload.email;
+  if (payload.phone !== undefined) updates.phone = payload.phone;
 
   if (updates.email) {
     const exists = await Model.findOne({ email: updates.email, _id: { $ne: targetId } });
@@ -176,7 +178,7 @@ const updateProfile = async (id, payload, email) => {
   const updated = await Model.findByIdAndUpdate(targetId, updates, {
     new: true,
     runValidators: true,
-  }).select("firstName lastName email role isActive createdAt updatedAt");
+  }).select("firstName lastName email phone role isActive createdAt updatedAt");
 
   if (!updated) throw new Error("Client introuvable");
   return updated;

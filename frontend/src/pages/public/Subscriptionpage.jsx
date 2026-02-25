@@ -1,7 +1,10 @@
 import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import PeachLayout from "../../components/layouts/PeachLayout";
 import Breadcrumb from "../../components/common/Breadcrumb";
 import { Coffee, Check } from "lucide-react";
+import AuthGateModal from "../../components/AuthGateModal";
+import { useAuth } from "../../contexts/AuthProvider";
 import CartContext from "../../contexts/CartContext";
 
 /* ---------- ROAST DATA (SMALL CARD IMAGES) ---------- */
@@ -40,18 +43,30 @@ const BIG_ROAST_IMAGES = {
 };
 
 export default function SubscriptionPage() {
+  const navigate = useNavigate();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
   const { addToCart } = useContext(CartContext);
 
   const [selectedRoast, setSelectedRoast] = useState(ROASTS[0]);
   const [purchaseType] = useState("subscribe");
   const [deliveryFrequency, setDeliveryFrequency] = useState("2-weeks");
   const [selectedGrind, setSelectedGrind] = useState("whole-bean");
-  const [added, setAdded] = useState(false); 
+  const [added, setAdded] = useState(false);
+  const [isAuthGateOpen, setIsAuthGateOpen] = useState(false);
 
   const productPrice = 18.99;
 
   /* ---------- ADD TO CART ---------- */
   const handleAddToCart = () => {
+    const isUserAuthenticated = isAuthenticated || Boolean(user);
+
+    if (authLoading) return;
+
+    if (!isUserAuthenticated) {
+      setIsAuthGateOpen(true);
+      return;
+    }
+
     const subscriptionItem = {
       _id: `subscription-${selectedRoast.id}-${selectedGrind}`,
       productType: "subscription",
@@ -72,7 +87,8 @@ export default function SubscriptionPage() {
   };
 
   return (
-    <PeachLayout>
+    <>
+      <PeachLayout>
       <div className="py-2 px-4 md:px-8 lg:px-12">
         <Breadcrumb />
       </div>
@@ -211,7 +227,14 @@ export default function SubscriptionPage() {
           </div>
         </div>
       </div>
-    </PeachLayout>
+      </PeachLayout>
+      <AuthGateModal
+        isOpen={isAuthGateOpen}
+        onClose={() => setIsAuthGateOpen(false)}
+        onLogin={() => navigate("/login")}
+        onRegister={() => navigate("/register")}
+      />
+    </>
   );
 }
 

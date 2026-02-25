@@ -8,6 +8,14 @@ const User = require("../models/user.model");
 
 const normalizeRole = (role) => (role === "user" ? "client" : role);
 const normalizeEmail = (email) => String(email || "").trim().toLowerCase();
+const normalizeToken = (token) => String(token || "").trim();
+
+const buildFrontendLink = (path) => {
+  const baseUrl = String(process.env.FRONTEND_URL || "").trim();
+  if (!baseUrl) throw new Error("FRONTEND_URL non configuree");
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return new URL(normalizedPath, baseUrl).toString();
+};
 
 const findAccountByEmail = async (email) => {
   const normalizedEmail = normalizeEmail(email);
@@ -29,10 +37,11 @@ const findAccountByResetToken = async (token) => {
 };
 
 const findAccountByActivationToken = async (token) => {
-  const client = await Client.findOne({ activationToken: token });
+  const normalizedToken = normalizeToken(token);
+  const client = await Client.findOne({ activationToken: normalizedToken });
   if (client) return client;
 
-  return User.findOne({ activationToken: token });
+  return User.findOne({ activationToken: normalizedToken });
 };
 
 const register = async ({ firstName, lastName, email, password, role, createdBy }) => {
@@ -52,26 +61,18 @@ const register = async ({ firstName, lastName, email, password, role, createdBy 
     createdBy: createdBy || null,
   });
 
-  const activationLink = `${process.env.FRONTEND_URL}/activate/${activationToken}`;
+  const activationLink = buildFrontendLink(`/activate/${activationToken}`);
   await sendEmail(normalizedEmail, "Activation du compte", `Cliquez ici pour activer : ${activationLink}`);
 
   return user;
 };
 
 const activateAccount = async (token) => {
-  const user = await findAccountByActivationToken(token);
+  const normalizedToken = normalizeToken(token);
+  if (!normalizedToken) throw new Error("Token invalide ou expire");
+
+  const user = await findAccountByActivationToken(normalizedToken);
   if (!user) {
-    const alreadyActivatedClient = await Client.findOne({
-      activationToken: null,
-      isActive: true,
-    });
-
-    const alreadyActivatedUser = await User.findOne({
-      activationToken: null,
-      isActive: true,
-    });
-
-    if (alreadyActivatedClient || alreadyActivatedUser) return;
     throw new Error("Token invalide ou expire");
   }
 
@@ -116,7 +117,7 @@ const forgotPassword = async (email) => {
   user.resetPasswordExpires = Date.now() + 3600 * 1000;
   await user.save();
 
-  const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+  const resetLink = buildFrontendLink(`/reset-password/${resetToken}`);
   await sendEmail(user.email, "Reinitialisation mot de passe", `Cliquez ici pour reinitialiser : ${resetLink}`);
 };
 

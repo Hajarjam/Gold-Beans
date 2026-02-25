@@ -2,22 +2,39 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import publicApi from "../../../api/publicApi";
 
+const activationRequests = new Map();
+
+const getActivationRequest = (token) => {
+  const normalizedToken = String(token || "").trim();
+  if (!normalizedToken) return Promise.reject(new Error("Activation link is invalid or expired."));
+
+  if (!activationRequests.has(normalizedToken)) {
+    const request = publicApi.activateAccount(normalizedToken).catch((error) => {
+      activationRequests.delete(normalizedToken);
+      throw error;
+    });
+    activationRequests.set(normalizedToken, request);
+  }
+
+  return activationRequests.get(normalizedToken);
+};
+
 export default function ActivateAccountPage() {
   const { token } = useParams();
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    let isMounted = true;
+    let cancelled = false;
 
     async function activate() {
       try {
-        await publicApi.activateAccount(token);
-        if (!isMounted) return;
+        await getActivationRequest(token);
+        if (cancelled) return;
         setStatus("success");
         setMessage("Your account is now active. You can log in.");
       } catch (err) {
-        if (!isMounted) return;
+        if (cancelled) return;
         setStatus("error");
         setMessage(err?.message || "Activation link is invalid or expired.");
       }
@@ -25,7 +42,7 @@ export default function ActivateAccountPage() {
 
     activate();
     return () => {
-      isMounted = false;
+      cancelled = true;
     };
   }, [token]);
 

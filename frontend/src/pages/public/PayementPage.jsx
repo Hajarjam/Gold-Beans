@@ -9,10 +9,21 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 const API_URL = process.env.REACT_APP_API_URLL;
+const getAuthToken = () =>
+  String(localStorage.getItem("authToken") || "").trim();
 
 const VisaIcon = () => (
   <svg viewBox="0 0 48 16" className="h-5 w-auto" fill="none">
-    <text x="0" y="13" fontFamily="serif" fontWeight="bold" fontSize="14" fill="#1A1F71">VISA</text>
+    <text
+      x="0"
+      y="13"
+      fontFamily="serif"
+      fontWeight="bold"
+      fontSize="14"
+      fill="#1A1F71"
+    >
+      VISA
+    </text>
   </svg>
 );
 
@@ -31,26 +42,40 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const { items, clearCart } = useContext(CartContext);
   const subtotal = useMemo(() => {
-    return items.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0), 0);
+    return items.reduce(
+      (sum, item) => sum + Number(item.price || 0) * Number(item.qty || 0),
+      0,
+    );
   }, [items]);
 
   const shipping = 0; // ou calcul plus tard
   const total = subtotal + shipping;
 
-
   const [form, setForm] = useState({
-    firstName: "", lastName: "", address: "",
-    city: "", country: "", zip: "",
-    phone: "", cardNumber: "", cardHolder: "",
-    expiration: "09/26", cvv: "145", savePayment: false,
+    firstName: "",
+    lastName: "",
+    address: "",
+    city: "",
+    country: "",
+    zip: "",
+    phone: "",
+    cardNumber: "",
+    cardHolder: "",
+    expiration: "09/26",
+    cvv: "145",
+    savePayment: false,
   });
-
-  const token = localStorage.getItem("authToken");
 
   useEffect(() => {
     const loadMe = async () => {
       try {
-        const r = await fetch(`${API_URL}/api/users/me`, {
+        const token = getAuthToken();
+        if (!token) {
+          navigate("/login");
+          return;
+        }
+
+        const r = await fetch(`${API_URL}/api/client/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const me = await r.json();
@@ -63,13 +88,16 @@ export default function CheckoutPage() {
         }));
 
         // OPTIONNEL: charger dernière adresse
-        const r2 = await fetch(`${API_URL}/api/clients/me/addresses`, {
+        const r2 = await fetch(`${API_URL}/api/client/me/addresses`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         if (r2.ok) {
           const addresses = await r2.json();
-          const last = Array.isArray(addresses) && addresses.length ? addresses[addresses.length - 1] : null;
+          const last =
+            Array.isArray(addresses) && addresses.length
+              ? addresses[addresses.length - 1]
+              : null;
           if (last) {
             setForm((prev) => ({
               ...prev,
@@ -85,20 +113,23 @@ export default function CheckoutPage() {
       }
     };
 
-    if (token) loadMe();
-  }, [token]);
+    loadMe();
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
-  };
-
-  const getCartItems = () => {
-    const raw = localStorage.getItem("cartItems");
-    return raw ? JSON.parse(raw) : [];
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const onFakePay = async () => {
+    const token = getAuthToken();
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -110,8 +141,9 @@ export default function CheckoutPage() {
         const normalizedProductType =
           it.productType === "subscription"
             ? "subscription"
-            : it.productType || (it.grind || it.size || it.purchaseType ? "coffee" : "machine");
-        const productId = it._id || it.id || it.productId;
+            : it.productType ||
+              (it.grind || it.size || it.purchaseType ? "coffee" : "machine");
+        const productId = it.productId || it.id || it._id;
 
         return {
           productType: normalizedProductType,
@@ -119,8 +151,11 @@ export default function CheckoutPage() {
           name: it.name,
           price: Number(it.price || 0),
           quantity: Number(it.qty || 1),
-          buyOption: it.purchaseType || "oneTime",
+          buyOption: it.purchaseType || "one-time",
           deliveryEvery: it.deliveryFrequency || "",
+          grind: it.grind || "",
+          size: it.size || "",
+          roast: it.roast || "",
         };
       });
 
@@ -128,12 +163,13 @@ export default function CheckoutPage() {
         (it) =>
           !it.productId ||
           !["coffee", "machine", "subscription"].includes(it.productType) ||
-          Number(it.quantity || 0) <= 0
+          Number(it.quantity || 0) <= 0,
       );
       if (hasInvalidItem) {
-        throw new Error("Invalid cart items. Please refresh your cart and try again.");
+        throw new Error(
+          "Invalid cart items. Please refresh your cart and try again.",
+        );
       }
-
 
       const body = {
         items: payloadItems,
@@ -161,14 +197,14 @@ export default function CheckoutPage() {
       if (!r.ok) throw new Error(data?.message || "Checkout failed");
 
       const confirmationOrder = {
-        address: body.address,        // ✅ street/city/zip/country/phone
+        address: body.address, // ✅ street/city/zip/country/phone
         items: payloadItems.map((it) => ({
           name: it.name,
           quantity: it.quantity,
           price: it.price,
-          image: it.image,            // si tu l’as dans le cart, sinon laisse
+          image: it.image, // si tu l’as dans le cart, sinon laisse
         })),
-        cardType: body.cardType,      // ✅ visa/mastercard
+        cardType: body.cardType, // ✅ visa/mastercard
         total,
         subtotal,
         shipping,
@@ -177,7 +213,7 @@ export default function CheckoutPage() {
 
       localStorage.setItem("lastOrder", JSON.stringify(confirmationOrder));
 
-      clearCart(); // 
+      clearCart(); //
       navigate("/client/confirmed", { state: { order: confirmationOrder } });
     } catch (e) {
       alert(e.message);
@@ -193,13 +229,8 @@ export default function CheckoutPage() {
     <>
       <DarkNavbar />
       <div className="min-h-screen py-20 bg-peach-light font-sans text-gray-800">
-        {/* Breadcrumb */}
-        <div className=" px-10 py-2 text-xs text-gray-500">
-          Home &gt; Your Cart &gt; Checkout
-        </div>
-
         {/* Main content */}
-        <main className="container mx-auto px-4 sm:px-6 lg:px-8 px-10 py-6 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 max-w-5xl">
+        <main className="container mx-auto  sm:px-6 lg:px-8 px-10 py-6 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 max-w-5xl">
           {/* Left */}
           <div className="flex flex-col gap-6">
             {/* Delivery */}
@@ -222,7 +253,6 @@ export default function CheckoutPage() {
                   onChange={handleChange}
                 />
               </div>
-
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
                 <input
@@ -248,10 +278,19 @@ export default function CheckoutPage() {
                 </select>
               </div>
 
-
               <div className="grid grid-cols-2 gap-3 mb-3">
-                <input name="city" placeholder="City" className={inputClass} onChange={handleChange} />
-                <input name="zip" placeholder="ZIP code" className={inputClass} onChange={handleChange} />
+                <input
+                  name="city"
+                  placeholder="City"
+                  className={inputClass}
+                  onChange={handleChange}
+                />
+                <input
+                  name="zip"
+                  placeholder="ZIP code"
+                  className={inputClass}
+                  onChange={handleChange}
+                />
               </div>
 
               <div className="flex gap-2">
@@ -286,7 +325,6 @@ export default function CheckoutPage() {
                   }
                 />
               </div>
-
             </div>
 
             {/* Payment */}
@@ -297,53 +335,88 @@ export default function CheckoutPage() {
               <div className="flex gap-3 mb-5">
                 <button
                   onClick={() => setCardType("visa")}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all text-sm font-medium ${cardType === "visa"
-                    ? "border-black bg-peach text-white"
-                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-400"
-                    }`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all text-sm font-medium ${
+                    cardType === "visa"
+                      ? "border-black bg-peach text-white"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-400"
+                  }`}
                 >
                   <VisaIcon />
-                  <span className={cardType === "visa" ? "text-white" : "text-[#1A1F71]"}>Visa</span>
+                  <span
+                    className={
+                      cardType === "visa" ? "text-white" : "text-[#1A1F71]"
+                    }
+                  >
+                    Visa
+                  </span>
                 </button>
                 <button
                   onClick={() => setCardType("mastercard")}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all text-sm font-medium ${cardType === "mastercard"
-                    ? "border-black bg-peach text-white"
-                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-400"
-                    }`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all text-sm font-medium ${
+                    cardType === "mastercard"
+                      ? "border-black bg-peach text-white"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-400"
+                  }`}
                 >
                   <MastercardIcon />
                   <span className="text-gray-700">Mastercard</span>
                 </button>
               </div>
 
-
-
-              <label className="block text-sm font-medium mb-1">Card Number</label>
+              <label className="block text-sm font-medium mb-1">
+                Card Number
+              </label>
               <input
                 name="cardNumber"
-                placeholder={cardType === "visa" ? "4111 1111 1111 1111" : "5500 0000 0000 0004"}
+                placeholder={
+                  cardType === "visa"
+                    ? "4111 1111 1111 1111"
+                    : "5500 0000 0000 0004"
+                }
                 className={`${inputClass} mb-4`}
                 onChange={handleChange}
               />
 
-              <label className="block text-sm font-medium mb-1">Card Name Holder</label>
-              <input name="cardHolder" placeholder="Name on card" className={`${inputClass} mb-4`} onChange={handleChange} />
+              <label className="block text-sm font-medium mb-1">
+                Card Name Holder
+              </label>
+              <input
+                name="cardHolder"
+                placeholder="Name on card"
+                className={`${inputClass} mb-4`}
+                onChange={handleChange}
+              />
 
               <div className="flex gap-4 mb-4">
                 <div className="flex-1">
-                  <label className="block text-sm font-medium mb-1">Expiration Date</label>
-                  <input name="expiration"
-                    placeholder="MM/YY" className={inputClass} onChange={handleChange} />
+                  <label className="block text-sm font-medium mb-1">
+                    Expiration Date
+                  </label>
+                  <input
+                    name="expiration"
+                    placeholder="MM/YY"
+                    className={inputClass}
+                    onChange={handleChange}
+                  />
                 </div>
                 <div className="flex-1">
                   <label className="block text-sm font-medium mb-1">CVV</label>
-                  <input name="cvv" placeholder="123" className={inputClass} onChange={handleChange} />
+                  <input
+                    name="cvv"
+                    placeholder="123"
+                    className={inputClass}
+                    onChange={handleChange}
+                  />
                 </div>
               </div>
 
               <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-                <input type="checkbox" name="savePayment" className="rounded" onChange={handleChange} />
+                <input
+                  type="checkbox"
+                  name="savePayment"
+                  className="rounded"
+                  onChange={handleChange}
+                />
                 Save payment informations
               </label>
             </div>
@@ -351,7 +424,6 @@ export default function CheckoutPage() {
 
           {/* Right - Order Summary */}
           <div>
-
             <div className="bg-white rounded-xl shadow-sm p-5">
               <h2 className="text-xl font-bold mb-4">Order Summary</h2>
               <input
@@ -389,11 +461,8 @@ export default function CheckoutPage() {
                 <Link to="/coffees" className="font-semibold underline">
                   Continue Shopping
                 </Link>
-
               </p>
             </div>
-
-
           </div>
         </main>
       </div>

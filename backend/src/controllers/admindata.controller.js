@@ -2,6 +2,7 @@ const Order = require("../models/order.model");
 const Subscription = require("../models/subscription.model");
 const Client = require("../models/client.model");
 const User = require("../models/user.model");
+const { isOneTimeItem } = require("../utils/purchase-type.util");
 
 const toMap = (items) => {
   const map = new Map();
@@ -39,7 +40,25 @@ const getAccountMap = async (ids) => {
 
 const getAdminOrders = async (_req, res, next) => {
   try {
-    const orders = await Order.find().sort({ createdAt: -1 }).lean();
+    const rawOrders = await Order.find().sort({ createdAt: -1 }).lean();
+    const orders = rawOrders
+      .map((order) => {
+        const items = Array.isArray(order.items) ? order.items.filter(isOneTimeItem) : [];
+        if (!items.length) return null;
+
+        const subtotal = items.reduce(
+          (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0),
+          0
+        );
+
+        return {
+          ...order,
+          items,
+          subtotal,
+          total: subtotal + Number(order.shipping || 0),
+        };
+      })
+      .filter(Boolean);
     const userIds = [
       ...new Set(
         orders

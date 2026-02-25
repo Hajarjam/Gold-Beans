@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../../../contexts/AuthProvider";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -6,11 +7,13 @@ const normalizeProfile = (data) => ({
   firstName: data?.firstName || "",
   lastName: data?.lastName || "",
   email: data?.email || "",
+  phone: data?.phone || "",
   role: data?.role || "client",
   isActive: typeof data?.isActive === "boolean" ? data.isActive : true,
 });
 
 export const useClientProfile = () => {
+  const { user, refreshAuth, logout } = useAuth();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -20,6 +23,15 @@ export const useClientProfile = () => {
   useEffect(() => {
     loadProfile();
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    setProfile((prev) => {
+      if (prev) return prev;
+      return normalizeProfile(user);
+    });
+  }, [user]);
 
   const loadProfile = async () => {
     try {
@@ -66,7 +78,8 @@ export const useClientProfile = () => {
 
       const updated = normalizeProfile(data?.data || data);
       setProfile(updated);
-      setMessage("Profile updated");
+      setMessage("Profile updated successfully");
+      await refreshAuth();
 
       return updated;
     } catch (err) {
@@ -143,5 +156,6 @@ export const useClientProfile = () => {
     updateProfile,
     updatePassword,
     deleteAccount,
+    logout,
   };
 };
