@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import MachineCard from "../../components/common/MachineCard.component";
 import MachineFilters from "../../components/common/MachineFilters.component";
 import Pagination from "../../components/common/Pagination";
@@ -14,6 +15,8 @@ export default function MachinePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOption, setSortOption] = useState("");
   const [activeFilters, setActiveFilters] = useState(null);
+  const [searchParams] = useSearchParams();
+  const searchValue = searchParams.get("q") ?? "";
 
   useEffect(() => {
     const fetchMachines = async () => {
@@ -29,6 +32,11 @@ export default function MachinePage() {
 
     fetchMachines();
   }, []);
+
+  // Reset to page 1 whenever URL search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchValue]);
   const sortMachines = (list, option) => {
     const sorted = [...list];
     switch (option) {
@@ -55,7 +63,20 @@ export default function MachinePage() {
   };
 
   const list = useMemo(() => {
+    const query = searchValue.trim().toLowerCase();
+
     const filtered = machines.filter((machine) => {
+      if (query) {
+        const haystack = [
+          machine?.name ?? "",
+          machine?.title ?? "",
+          machine?.brand ?? "",
+        ]
+          .join(" ")
+          .toLowerCase();
+        if (!haystack.includes(query)) return false;
+      }
+
       if (!activeFilters) return true;
 
       if (activeFilters.type?.length && !activeFilters.type.includes(machine.type)) {
@@ -101,7 +122,7 @@ export default function MachinePage() {
     });
 
     return sortMachines(filtered, sortOption);
-  }, [machines, activeFilters, sortOption]);
+  }, [machines, activeFilters, sortOption, searchValue]);
 
   const totalPages = Math.ceil(list.length / ITEMS_PER_PAGE) || 1;
   const start = (currentPage - 1) * ITEMS_PER_PAGE;
