@@ -10,7 +10,6 @@ import {
   formatDate,
   formatPrice,
   getSubscriptionPlanName,
-  normalizeStatus,
 } from "../../common/user/subscriptionUtils";
 import { useAuth } from "../../../contexts/AuthProvider";
 
@@ -20,10 +19,8 @@ const ROAST_PLANS = ["Light", "Medium", "Dark"];
 const ROAST_DESCRIPTIONS = {
   Light:
     "A bright and delicate subscription with fruity, citrus-forward notes.",
-  Medium:
-    "A balanced and smooth subscription with chocolate and nutty notes.",
-  Dark:
-    "A bold and roasty subscription with deep, rich flavor.",
+  Medium: "A balanced and smooth subscription with chocolate and nutty notes.",
+  Dark: "A bold and roasty subscription with deep, rich flavor.",
 };
 
 const toDateValue = (value) => {
@@ -52,7 +49,9 @@ const toBackendImageUrl = (imagePath) => {
     return apiOrigin ? `${apiOrigin}${imagePath}` : imagePath;
   }
 
-  const normalized = imagePath.startsWith("uploads/") ? `/${imagePath}` : `/uploads/coffees/${imagePath}`;
+  const normalized = imagePath.startsWith("uploads/")
+    ? `/${imagePath}`
+    : `/uploads/coffees/${imagePath}`;
   return apiOrigin ? `${apiOrigin}${normalized}` : normalized;
 };
 
@@ -66,10 +65,10 @@ const normalizePreviewProducts = (items) => {
       imageUrl: toBackendImageUrl(
         Array.isArray(item?.images) && item.images.length
           ? item.images[0]
-          : item?.image || ""
+          : item?.image || "",
       ),
       sortDate: toDateValue(
-        normalizeDate(item?.updatedAt) || normalizeDate(item?.createdAt)
+        normalizeDate(item?.updatedAt) || normalizeDate(item?.createdAt),
       ),
     }))
     .sort((a, b) => b.sortDate - a.sortDate)
@@ -83,11 +82,16 @@ const normalizePlans = (items) => {
     const roastA = ROAST_ORDER[a?.roastLevel] ?? 99;
     const roastB = ROAST_ORDER[b?.roastLevel] ?? 99;
     if (roastA !== roastB) return roastA - roastB;
-    return toDateValue(normalizeDate(b?.createdAt)) - toDateValue(normalizeDate(a?.createdAt));
+    return (
+      toDateValue(normalizeDate(b?.createdAt)) -
+      toDateValue(normalizeDate(a?.createdAt))
+    );
   });
 
   return ROAST_PLANS.map((roast) => {
-    const coffee = sorted.find((item) => String(item?.roastLevel || "").trim() === roast);
+    const coffee = sorted.find(
+      (item) => String(item?.roastLevel || "").trim() === roast,
+    );
 
     return {
       id: String(coffee?._id || `plan-${roast.toLowerCase()}`),
@@ -119,6 +123,7 @@ const ClientMainDash = () => {
   const [products, setProducts] = useState([]);
   const [plans, setPlans] = useState([]);
   const [deliveryDates, setDeliveryDates] = useState([]);
+  const [searchQuery] = useState("");
   const [historyPage, setHistoryPage] = useState(1);
 
   const [productsLoading, setProductsLoading] = useState(true);
@@ -165,7 +170,9 @@ const ClientMainDash = () => {
 
         const data = await response.json();
         if (!response.ok) {
-          throw new Error(data.error || data.message || "Failed to fetch dashboard data");
+          throw new Error(
+            data.error || data.message || "Failed to fetch dashboard data",
+          );
         }
 
         setProducts(normalizePreviewProducts(data.coffeesPreview));
@@ -192,7 +199,9 @@ const ClientMainDash = () => {
 
         const data = await response.json();
         if (!response.ok) {
-          throw new Error(data.error || data.message || "Failed to load subscription plans");
+          throw new Error(
+            data.error || data.message || "Failed to load subscription plans",
+          );
         }
 
         setPlans(normalizePlans(Array.isArray(data) ? data : []));
@@ -212,21 +221,10 @@ const ClientMainDash = () => {
     setDeliveryDates(collectDeliveryDates(subscriptions));
   }, [subscriptions]);
 
-  const activePlanRoast = String(activeSubscription?.coffee?.roastLevel || "").trim();
+  const activePlanRoast = String(
+    activeSubscription?.coffee?.roastLevel || "",
+  ).trim();
   const actionError = subscribeActionError || subsActionError;
-  const stats = useMemo(() => {
-    const active = subscriptions.filter((sub) => normalizeStatus(sub) === "active").length;
-    const cancelled = subscriptions.filter((sub) => normalizeStatus(sub) === "cancelled").length;
-    return {
-      availablePlans: plans.filter((plan) => Boolean(plan.coffeeId)).length,
-      totalSubscriptions: subscriptions.length,
-      activeSubscriptions: active,
-      cancelledSubscriptions: cancelled,
-      nextBillingDate: activeSubscription?.nextDelivery
-        ? formatDate(activeSubscription.nextDelivery)
-        : "-",
-    };
-  }, [plans, subscriptions, activeSubscription]);
 
   const handleSubscribe = async (plan) => {
     const token = localStorage.getItem("authToken");
@@ -288,177 +286,222 @@ const ClientMainDash = () => {
     }
   };
 
+  const matches = useMemo(
+    () => (keywords) => {
+      if (!searchQuery.trim()) return true;
+      return keywords.some((keyword) =>
+        keyword.toLowerCase().includes(searchQuery.toLowerCase()),
+      );
+    },
+    [searchQuery],
+  );
+
   return (
-    <div className="px-6 py-4 text-gray-800">
-      <h1 className="text-2xl font-semibold mb-8">Dashboard Overview</h1>
+    <div className="flex flex-col w-full min-h-screen bg-peach-light text-brown pt-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 pb-6 ">
+        <div className="lg:col-span-2 space-y-3">
+          {matches(["products", "coffee", "coffees"]) && (
+            <div className="bg-peach/40 text-brown rounded-lg shadow-md p-6">
+              {productsLoading ? (
+                <p className="text-sm text-peach-light/80">
+                  Loading products...
+                </p>
+              ) : productsError ? (
+                <p className="text-sm text-red-300">{productsError}</p>
+              ) : (
+                <>
+                  <NewProducts products={products} />
+                  <button
+                    onClick={() => navigate("/client/coffees")}
+                    className="mt-4 w-full py-2 bg-brown text-white rounded hover:bg-white transition-colors"
+                  >
+                    View More
+                  </button>
+                </>
+              )}
+            </div>
+          )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white shadow-sm rounded-lg p-5 border border-[#EADFD7]">
-          <p className="text-sm font-medium text-gray-500 mb-3">Subscription Plans</p>
-          <p className="text-2xl font-semibold text-[#3B170D]">{stats.availablePlans}</p>
-        </div>
-        <div className="bg-white shadow-sm rounded-lg p-5 border border-[#EADFD7]">
-          <p className="text-sm font-medium text-gray-500 mb-3">Active Subscriptions</p>
-          <p className="text-2xl font-semibold text-[#3B170D]">{stats.activeSubscriptions}</p>
-        </div>
-        <div className="bg-white shadow-sm rounded-lg p-5 border border-[#EADFD7]">
-          <p className="text-sm font-medium text-gray-500 mb-3">Total Subscription History</p>
-          <p className="text-2xl font-semibold text-[#3B170D]">{stats.totalSubscriptions}</p>
-        </div>
-        <div className="bg-white shadow-sm rounded-lg p-5 border border-[#EADFD7]">
-          <p className="text-sm font-medium text-gray-500 mb-3">Next Billing Date</p>
-          <p className="text-2xl font-semibold text-[#3B170D]">{stats.nextBillingDate}</p>
-        </div>
-      </div>
+          {matches(["plans", "subscriptions"]) && (
+            <section
+              id="plans-section"
+              className="bg-peach/40 text-brown rounded-lg shadow-md p-6"
+            >
+              <h3 className="md:text-xl font-semibold font-instrument-sans mb-2">
+                Subscription Plans
+              </h3>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-6">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-lg shadow-sm p-6 border border-[#EADFD7]">
-            {productsLoading ? (
-              <p className="text-sm text-gray-500">Loading products...</p>
-            ) : productsError ? (
-              <p className="text-sm text-red-600">{productsError}</p>
-            ) : (
-              <>
-                <NewProducts products={products} />
-                <button
-                  onClick={() => navigate("/client/coffees")}
-                  className="mt-4 w-full py-2 bg-[#3B170D] text-white rounded hover:bg-[#5A2A1A] transition-colors"
-                >
-                  View More
-                </button>
-              </>
-            )}
-          </div>
+              {plansLoading ? (
+                <p className="text-sm text-brown/70">
+                  Loading subscription plans...
+                </p>
+              ) : plansError ? (
+                <p className="text-sm text-red-700">{plansError}</p>
+              ) : plans.length === 0 ? (
+                <div className="bg-peach px-3 py-2 rounded text-sm text-brown">
+                  No subscription plans available.
+                </div>
+              ) : (
+                <div className="flex gap-2 overflow-x-auto pb-1 px-1">
+                  {plans.map((plan) => {
+                    const isCurrentPlan =
+                      activePlanRoast && plan.roastLevel === activePlanRoast;
+                    const isProcessing = subscribingPlanId === plan.id;
 
-          <section id="plans-section" className="bg-white rounded-lg shadow-sm p-6 border border-[#EADFD7]">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Subscription Plans</h3>
-
-            {plansLoading ? (
-              <p className="text-sm text-gray-500">Loading subscription plans...</p>
-            ) : plansError ? (
-              <p className="text-sm text-red-600">{plansError}</p>
-            ) : plans.length === 0 ? (
-              <p className="text-sm text-gray-500">No subscription plans available.</p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {plans.map((plan) => {
-                  const isCurrentPlan = activePlanRoast && plan.roastLevel === activePlanRoast;
-                  const isProcessing = subscribingPlanId === plan.id;
-
-                  return (
-                    <article
-                      key={plan.id}
-                      className={`rounded-lg border p-4 ${
-                        isCurrentPlan ? "border-[#3B170D] bg-[#F6EEE7]" : "border-[#EADFD7] bg-white"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <h4 className="font-semibold text-base text-gray-800">{plan.name}</h4>
-                        {isCurrentPlan ? (
-                          <span className="text-xs px-2 py-1 rounded bg-[#3B170D] text-white">
-                            Current Plan
-                          </span>
-                        ) : null}
-                      </div>
-                      <p className="text-sm text-gray-600 mt-2 line-clamp-3 min-h-[60px]">
-                        {plan.description}
-                      </p>
-                      <p className="mt-3 text-sm font-medium text-gray-800">Price: ${formatPrice(plan.price)}</p>
-                      <button
-                        type="button"
-                        disabled={isCurrentPlan || isProcessing || !plan.coffeeId}
-                        onClick={() => handleSubscribe(plan)}
-                        className={`mt-3 w-full py-2 rounded transition-colors ${
-                          isCurrentPlan || !plan.coffeeId
-                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                            : "bg-[#3B170D] text-white hover:bg-[#5A2A1A]"
+                    return (
+                      <article
+                        key={plan.id}
+                        className={`min-w-[220px] flex-1 px-3 py-2 rounded-lg border shadow-sm transition-colors ${
+                          isCurrentPlan
+                            ? "border-brown/60 bg-peach"
+                            : "border-brown/25 bg-peach/30 hover:bg-peach/70"
                         }`}
                       >
-                        {isCurrentPlan
-                          ? "Current Plan"
-                          : isProcessing
-                            ? "Subscribing..."
-                            : !plan.coffeeId
-                              ? "Unavailable"
-                              : "Subscribe"}
-                      </button>
-                    </article>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-
-          <section className="bg-white rounded-lg shadow-sm p-6 border border-[#EADFD7]">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Active Subscription</h3>
-
-            {subsLoading ? (
-              <p className="text-sm text-gray-500">Loading active subscription...</p>
-            ) : subsError ? (
-              <p className="text-sm text-red-600">{subsError}</p>
-            ) : activeSubscription ? (
-              <div className="rounded-lg border border-[#EADFD7] bg-[#FDF9F5] p-4">
-                <p className="font-medium text-base text-gray-800">
-                  {getSubscriptionPlanName(activeSubscription)}
-                </p>
-                <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-700">
-                  <p>Start Date: {formatDate(activeSubscription?.startDate || activeSubscription?.createdAt)}</p>
-                  <p>Next Billing Date: {formatDate(activeSubscription?.nextDelivery)}</p>
-                  <p>Price: ${formatPrice(activeSubscription?.price)}</p>
-                  <p>Status: active</p>
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className="font-medium text-sm text-brown">
+                            {plan.name}
+                          </h4>
+                          {isCurrentPlan ? (
+                            <span className="text-xs px-2 py-1 rounded bg-peach-light text-brown">
+                              Current Plan
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="text-sm text-brown/80 mt-2 line-clamp-3 min-h-[60px]">
+                          {plan.description}
+                        </p>
+                        <p className="mt-2 text-sm font-medium text-brown">
+                          Price: ${formatPrice(plan.price)}
+                        </p>
+                        <button
+                          type="button"
+                          disabled={
+                            isCurrentPlan || isProcessing || !plan.coffeeId
+                          }
+                          onClick={() => handleSubscribe(plan)}
+                          className={`mt-2 w-full py-2 rounded transition-colors ${
+                            isCurrentPlan || !plan.coffeeId
+                              ? "bg-peach-light/70 text-brown/70 cursor-not-allowed"
+                              : "bg-brown text-white hover:bg-white"
+                          }`}
+                        >
+                          {isCurrentPlan
+                            ? "Current Plan"
+                            : isProcessing
+                              ? "Subscribing..."
+                              : !plan.coffeeId
+                                ? "Unavailable"
+                                : "Subscribe"}
+                        </button>
+                      </article>
+                    );
+                  })}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => openCancelModal(activeSubscription)}
-                  className="mt-4 px-4 py-2 rounded-lg bg-[#3B170D] text-[#FFF3EB] hover:bg-[#BB9582] hover:text-[#3B170D] transition"
-                >
-                  Cancel Subscription
-                </button>
-              </div>
-            ) : (
-              <div className="rounded-lg border border-[#EADFD7] bg-[#FDF9F5] p-4">
-                <p className="text-sm text-gray-600">You have no active subscription.</p>
-                <button
-                  type="button"
-                  onClick={() =>
-                    document.getElementById("plans-section")?.scrollIntoView({ behavior: "smooth" })
-                  }
-                  className="mt-3 px-4 py-2 rounded bg-[#3B170D] text-white hover:bg-[#5A2A1A] transition-colors"
-                >
-                  View Plans
-                </button>
-              </div>
-            )}
-          </section>
+              )}
+            </section>
+          )}
 
-          <section className="bg-white rounded-lg shadow-sm p-6 border border-[#EADFD7]">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">Subscription History</h3>
-            <SubscriptionHistoryList
-              subscriptions={subscriptions}
-              loading={subsLoading}
-              error={subsError}
-              currentPage={historyPage}
-              onPageChange={setHistoryPage}
-              itemsPerPage={3}
-              onCancelRequest={openCancelModal}
-              cancelLoadingId={cancelLoadingId}
-              emptyMessage="No subscription history yet."
-              variant="light"
-            />
+          {(matches(["active", "current", "subscription"]) ||
+            matches(["history", "subscriptions"])) && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {matches(["active", "current", "subscription"]) && (
+                <section className="bg-peach/40 text-brown rounded-lg shadow-md p-6">
+                  <h3 className="md:text-xl font-semibold font-instrument-sans mb-2">
+                    Active Subscription
+                  </h3>
 
-            <button
-              onClick={() => navigate("/client/subscriptions")}
-              className="mt-4 w-full py-2 bg-[#3B170D] text-white rounded hover:bg-[#5A2A1A] transition-colors"
-            >
-              View Full History
-            </button>
-          </section>
+                  {subsLoading ? (
+                    <p className="text-sm text-brown/70">
+                      Loading active subscription...
+                    </p>
+                  ) : subsError ? (
+                    <p className="text-sm text-red-700">{subsError}</p>
+                  ) : activeSubscription ? (
+                    <div className="bg-peach px-3 py-2 rounded shadow-sm">
+                      <p className="font-medium text-sm text-brown">
+                        {getSubscriptionPlanName(activeSubscription)}
+                      </p>
+                      <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-brown/85">
+                        <p>
+                          Start Date:{" "}
+                          {formatDate(
+                            activeSubscription?.startDate ||
+                              activeSubscription?.createdAt,
+                          )}
+                        </p>
+                        <p>
+                          Next Billing Date:{" "}
+                          {formatDate(activeSubscription?.nextDelivery)}
+                        </p>
+                        <p>Price: ${formatPrice(activeSubscription?.price)}</p>
+                        <p>Status: active</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => openCancelModal(activeSubscription)}
+                        className="mt-3 px-4 py-2 rounded bg-peach-light text-brown hover:bg-white transition-colors"
+                      >
+                        Cancel Subscription
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="bg-peach px-3 py-2 rounded shadow-sm">
+                      <p className="text-sm text-brown/70">
+                        You have no active subscription.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          document
+                            .getElementById("plans-section")
+                            ?.scrollIntoView({ behavior: "smooth" })
+                        }
+                        className="mt-2 px-4 py-2 rounded bg-peach-light text-brown hover:bg-white transition-colors"
+                      >
+                        View Plans
+                      </button>
+                    </div>
+                  )}
+                </section>
+              )}
+
+              {matches(["history", "subscriptions"]) && (
+                <section className="bg-peach/40 text-brown rounded-lg shadow-md p-6">
+                  <h3 className="md:text-xl font-semibold font-instrument-sans mb-2">
+                    Subscription History
+                  </h3>
+                  <SubscriptionHistoryList
+                    subscriptions={subscriptions}
+                    loading={subsLoading}
+                    error={subsError}
+                    currentPage={historyPage}
+                    onPageChange={setHistoryPage}
+                    itemsPerPage={3}
+                    onCancelRequest={openCancelModal}
+                    cancelLoadingId={cancelLoadingId}
+                    emptyMessage="No subscription history yet."
+                    variant="newProduct"
+                  />
+                </section>
+              )}
+            </div>
+          )}
 
           {actionError ? (
             <div className="rounded-lg border border-red-300 bg-red-100 text-red-700 px-4 py-3 text-sm">
               {actionError}
             </div>
+          ) : null}
+
+          {!matches(["history", "subscriptions"]) &&
+          !matches(["active", "subscription"]) ? (
+            <button
+              type="button"
+              onClick={() => navigate("/client/subscriptions")}
+              className="w-full py-2 bg-brown text-peach-light rounded-lg hover:bg-charcoal transition-colors"
+            >
+              Go to Full Subscription History
+            </button>
           ) : null}
 
           <SubscriptionCancelModal
@@ -467,11 +510,22 @@ const ClientMainDash = () => {
             onConfirm={handleCancelSubscription}
             loading={Boolean(cancelLoadingId)}
           />
+
+          {matches(["history", "subscriptions"]) ? (
+            <button
+              onClick={() => navigate("/client/subscriptions")}
+              className="w-full py-2 bg-brown text-peach-light rounded-lg hover:bg-charcoal transition-colors"
+            >
+              View Full History
+            </button>
+          ) : null}
         </div>
 
-        <div>
-          <DeliveryCalendar deliveryDates={deliveryDates} />
-        </div>
+        {matches(["delivery", "calendar"]) && (
+          <div>
+            <DeliveryCalendar deliveryDates={deliveryDates} />
+          </div>
+        )}
       </div>
     </div>
   );

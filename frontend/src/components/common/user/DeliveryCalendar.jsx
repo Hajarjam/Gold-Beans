@@ -35,25 +35,25 @@ const DeliveryCalendar = ({ deliveryDates = [] }) => {
   const next = () => setCurrent(new Date(year, month + 1, 1));
 
   return (
-    <div className="rounded-2xl border border-[#EADFD7] bg-white shadow-sm p-6 h-full flex flex-col max-h-[600px] text-[#3B170D]">
-      <h2 className="flex justify-center items-center text-xl font-instrument-serif mb-4">
+    <div className="bg-transparent border-2 border-brown rounded-xl p-6 h-full flex flex-col max-h-[600px]">
+      <h2 className="flex justify-center items-center text-xl font-instrument-serif text-brown mb-4">
         Deliveries
       </h2>
 
-      <div className="rounded-xl border border-[#EADFD7] bg-[#FDF9F5] p-4 flex-1 max-h-[500px]">
+      <div className="bg-peach/50 rounded-xl p-4 flex-1 max-h-[500px]">
         <div className="flex items-center justify-between mb-3">
           <button
             onClick={prev}
-            className="p-1 hover:bg-[#3B170D]/10 rounded-full transition-colors font-semibold"
+            className="p-1 hover:bg-charcoal/40 rounded-full transition-colors text-brown font-semibold"
           >
             {"<"}
           </button>
-          <span className="font-serif text-sm tracking-widest">
+          <span className="font-serif text-brown text-sm tracking-widest">
             {monthName}
           </span>
           <button
             onClick={next}
-            className="p-1 hover:bg-[#3B170D]/10 rounded-full transition-colors font-semibold"
+            className="p-1 hover:bg-charcoal/40 rounded-full transition-colors text-brown font-semibold"
           >
             {">"}
           </button>
@@ -61,7 +61,7 @@ const DeliveryCalendar = ({ deliveryDates = [] }) => {
 
         <div className="grid grid-cols-7 text-center mb-1">
           {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-            <div key={i} className="text-xs font-semibold py-1">
+            <div key={i} className="text-xs font-semibold text-brown py-1">
               {d}
             </div>
           ))}
@@ -83,9 +83,9 @@ const DeliveryCalendar = ({ deliveryDates = [] }) => {
                 key={day}
                 className={`
                   aspect-square flex items-center justify-center rounded-full text-xs cursor-pointer transition-colors
-                  ${isDelivery ? "bg-[#3B170D] text-[#FFF3EB] font-bold" : ""}
-                  ${isToday && !isDelivery ? "ring-2 ring-[#3B170D]" : ""}
-                  ${!isDelivery ? "hover:bg-[#3B170D]/10 text-[#3B170D]" : "hover:bg-[#5A2A1A]"}
+                  ${isDelivery ? "bg-charcoal text-peach font-bold" : ""}
+                  ${isToday && !isDelivery ? "ring-2 ring-charcoal" : ""}
+                  ${!isDelivery ? "hover:bg-brown hover:text-peach text-charcoal" : "hover:bg-charcoal"}
                 `}
                 title={isDelivery ? "Delivery scheduled" : ""}
               >
@@ -95,11 +95,11 @@ const DeliveryCalendar = ({ deliveryDates = [] }) => {
           })}
         </div>
 
-        <p className="text-center text-xs mt-3 font-serif">{year}</p>
+        <p className="text-center text-xs text-brown mt-3 font-serif">{year}</p>
       </div>
 
-      <div className="flex items-center gap-2 mt-3 text-xs">
-        <div className="w-3 h-3 rounded-full bg-[#3B170D]" />
+      <div className="flex items-center gap-2 mt-3 text-xs text-[#4a2f1f]">
+        <div className="w-3 h-3 rounded-full bg-charcoal" />
         <span>Scheduled delivery</span>
       </div>
     </div>

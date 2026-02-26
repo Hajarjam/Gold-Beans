@@ -19,19 +19,32 @@ export default function SubscriptionHistoryList({
   variant = "dark",
 }) {
   const isLight = variant === "light";
-  const mutedTextClass = isLight ? "text-[#3B170D]/70" : "text-peach-light/80";
-  const errorTextClass = isLight ? "text-red-700" : "text-red-300";
+  const isNewProduct = variant === "newProduct";
+  const mutedTextClass = isLight
+    ? "text-[#3B170D]/70"
+    : isNewProduct
+    ? "text-brown/70"
+    : "text-peach-light/80";
+  const errorTextClass = isLight || isNewProduct ? "text-red-700" : "text-red-300";
   const cardClass = isLight
     ? "rounded-xl border border-[#EADFD7] bg-[#FDF9F5] p-4"
+    : isNewProduct
+    ? "bg-peach px-3 py-2 rounded shadow-sm hover:bg-peach/30 transition-colors"
     : "rounded-lg border border-peach/30 bg-peach/10 p-3";
   const statusClass = isLight
     ? "text-xs uppercase tracking-wide text-[#3B170D]/80"
+    : isNewProduct
+    ? "text-xs uppercase tracking-wide text-brown/80"
     : "text-xs uppercase tracking-wide";
   const detailsClass = isLight
     ? "mt-2 grid grid-cols-1 md:grid-cols-4 gap-2 text-sm text-[#3B170D]/85"
+    : isNewProduct
+    ? "mt-2 grid grid-cols-1 md:grid-cols-4 gap-2 text-sm text-brown/85"
     : "mt-2 grid grid-cols-1 md:grid-cols-4 gap-2 text-sm text-peach-light/90";
   const cancelButtonClass = isLight
     ? "mt-3 px-3 py-1.5 rounded-lg bg-[#3B170D] text-[#FFF3EB] hover:bg-[#BB9582] hover:text-[#3B170D] transition text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+    : isNewProduct
+    ? "mt-3 px-3 py-1.5 rounded bg-peach-light text-brown hover:bg-white transition-colors text-sm disabled:opacity-60 disabled:cursor-not-allowed"
     : "mt-3 px-3 py-1.5 rounded-lg bg-peach text-brown hover:bg-[#BB9582] hover:text-[#3B170D] transition text-sm disabled:opacity-60 disabled:cursor-not-allowed";
 
   if (loading) {

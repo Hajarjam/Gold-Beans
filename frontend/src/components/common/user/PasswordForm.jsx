@@ -47,10 +47,12 @@ const PasswordForm = ({ onUpdatePassword, saving }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-lg bg-white border border-[#EADFD7] shadow-sm p-6"
+      className="bg-peach/40 text-brown rounded-lg shadow-md p-6 space-y-4"
       noValidate
     >
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">Change Password</h2>
+      <h2 className="md:text-xl font-semibold font-instrument-sans mb-2">
+        Change Password
+      </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Input
@@ -83,7 +85,7 @@ const PasswordForm = ({ onUpdatePassword, saving }) => {
         <button
           type="submit"
           disabled={saving}
-          className="w-full md:w-auto px-4 py-2 rounded-lg bg-[#3B170D] text-[#FFF3EB] hover:bg-[#BB9582] hover:text-[#3B170D] transition disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full rounded bg-brown text-white py-2 hover:bg-white hover:text-brown disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-peach-light transition-colors"
         >
           {saving ? "Updating..." : "Update Password"}
         </button>
@@ -94,13 +96,15 @@ const PasswordForm = ({ onUpdatePassword, saving }) => {
 
 const Input = ({ label, error, ...props }) => (
   <div>
-    <label className="block text-sm font-medium text-[#3B170D]/80 mb-1.5">
+    <label className="block text-sm mb-1">
       {label}
     </label>
     <input
       {...props}
-      className={`w-full rounded-xl border px-3 py-2.5 text-[#3B170D] bg-[#FDF9F5] focus:outline-none focus:ring-2 focus:ring-[#3B170D]/20 ${
-        error ? "border-red-300" : "border-[#EADFD7]"
+      className={`w-full rounded border px-3 py-2 bg-white text-brown placeholder:text-brown/50 focus:ring-2 focus:ring-peach-light focus:outline-none ${
+        error
+          ? "border-red-300"
+          : "border-brown/25"
       }`}
     />
     {error ? <p className="mt-1 text-xs text-red-600">{error}</p> : null}

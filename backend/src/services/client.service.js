@@ -2,6 +2,8 @@ const Client = require("../models/client.model");
 const User = require("../models/user.model");
 const Coffee = require("../models/coffee.model");
 const Subscription = require("../models/subscription.model");
+const fs = require("fs");
+const path = require("path");
 
 const normalizeRole = (role) => (role === "user" ? "client" : role);
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -32,7 +34,7 @@ const getAllClients = async ({ search = "", sort = "firstNameAsc", role = "" } =
   return clients.map((c) => ({ ...c, role: normalizeRole(c.role) }));
 };
 
-const safeClient = "firstName lastName email phone role isActive createdAt updatedAt";
+const safeClient = "firstName lastName email phone avatar role isActive createdAt updatedAt";
 
 const getClientById = async (id) => {
   const client = await Client.findById(id).select(safeClient).lean();
@@ -136,7 +138,7 @@ const updateClient = async (id, payload) => {
       isActive: payload.isActive,
     },
     { new: true, runValidators: true }
-  ).select("firstName lastName email phone role isActive createdAt");
+  ).select("firstName lastName email phone avatar role isActive createdAt");
 
   if (!updated) throw new Error("Client introuvable");
   return updated;
@@ -178,7 +180,38 @@ const updateProfile = async (id, payload, email) => {
   const updated = await Model.findByIdAndUpdate(targetId, updates, {
     new: true,
     runValidators: true,
-  }).select("firstName lastName email phone role isActive createdAt updatedAt");
+  }).select("firstName lastName email phone avatar role isActive createdAt updatedAt");
+
+  if (!updated) throw new Error("Client introuvable");
+  return updated;
+};
+
+const uploadAvatar = async (id, file, email) => {
+  if (!file) throw new Error("Avatar image is required");
+
+  const { account, source } = await resolveClientIdentity(id, email);
+  if (!account) throw new Error("Client introuvable");
+
+  const avatarPath = `/uploads/avatars/${file.filename}`;
+
+  if (
+    typeof account.avatar === "string" &&
+    account.avatar.startsWith("/uploads/avatars/")
+  ) {
+    const existingAvatar = path.join(process.cwd(), account.avatar.replace(/^\//, ""));
+    fs.unlink(existingAvatar, (err) => {
+      if (err && err.code !== "ENOENT") {
+        console.warn("Avatar delete error:", err.message);
+      }
+    });
+  }
+
+  const Model = accountModelBySource(source);
+  const updated = await Model.findByIdAndUpdate(
+    account._id,
+    { avatar: avatarPath },
+    { new: true, runValidators: true },
+  ).select("firstName lastName email phone avatar role isActive createdAt updatedAt");
 
   if (!updated) throw new Error("Client introuvable");
   return updated;
@@ -280,6 +313,7 @@ module.exports = {
   getClientById,
   getProfile,
   updateProfile,
+  uploadAvatar,
   updatePassword,
   deleteAccount,
   getDashboard,

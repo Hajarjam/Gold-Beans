@@ -3,7 +3,8 @@ import { useAuth } from "../../../contexts/AuthProvider";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
-const normalizeProfile = (data) => ({
+const normalizeProfile = (data = {}) => ({
+  ...data,
   firstName: data?.firstName || "",
   lastName: data?.lastName || "",
   email: data?.email || "",
@@ -17,6 +18,7 @@ export const useClientProfile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
@@ -76,12 +78,16 @@ export const useClientProfile = () => {
           data.error || data.message || "Failed to update profile",
         );
 
-      const updated = normalizeProfile(data?.data || data);
-      setProfile(updated);
+      const nextData = data?.data || data;
+      let updatedProfile = null;
+      setProfile((prev) => {
+        updatedProfile = normalizeProfile({ ...(prev || {}), ...nextData });
+        return updatedProfile;
+      });
       setMessage("Profile updated successfully");
       await refreshAuth();
 
-      return updated;
+      return updatedProfile;
     } catch (err) {
       setError(err.message || "Failed to update profile");
       throw err;
@@ -121,6 +127,49 @@ export const useClientProfile = () => {
     }
   };
 
+  const uploadAvatar = async (file) => {
+    try {
+      setAvatarUploading(true);
+      setError("");
+      setMessage("");
+
+      if (!file) throw new Error("Please select an image.");
+
+      const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("Not authenticated");
+
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      const res = await fetch(`${API_BASE_URL}/client/avatar`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || data.message || "Failed to upload avatar");
+      }
+
+      const nextData = data?.data || data;
+      let updatedProfile = null;
+      setProfile((prev) => {
+        updatedProfile = normalizeProfile({ ...(prev || {}), ...nextData });
+        return updatedProfile;
+      });
+      setMessage("Profile image updated successfully");
+      await refreshAuth();
+
+      return updatedProfile;
+    } catch (err) {
+      setError(err.message || "Failed to upload avatar");
+      throw err;
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
   const deleteAccount = async () => {
     try {
       setSaving(true);
@@ -151,9 +200,11 @@ export const useClientProfile = () => {
     profile,
     loading,
     saving,
+    avatarUploading,
     error,
     message,
     updateProfile,
+    uploadAvatar,
     updatePassword,
     deleteAccount,
     logout,

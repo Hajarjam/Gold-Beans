@@ -45,8 +45,17 @@ const updatePassword = async (req, res, next) => {
   }
 };
 
-const uploadAvatar = async (_req, res) => {
-  res.status(501).json({ error: "Avatar upload not implemented" });
+const uploadAvatar = async (req, res, next) => {
+  try {
+    const updatedClient = await clientService.uploadAvatar(
+      req.user.id,
+      req.file,
+      req.user.email,
+    );
+    res.json({ message: "Avatar updated", data: updatedClient });
+  } catch (err) {
+    next(err);
+  }
 };
 
 const deleteAccount = async (req, res, next) => {

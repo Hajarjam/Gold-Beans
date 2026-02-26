@@ -24,5 +24,6 @@ function makeUploader(folderName) {
 
 const uploadCoffeeImage = makeUploader("coffees");
 const uploadMachineImage = makeUploader("machines");
+const uploadAvatarImage = makeUploader("avatars");
 
-module.exports = { uploadCoffeeImage, uploadMachineImage };
+module.exports = { uploadCoffeeImage, uploadMachineImage, uploadAvatarImage };
