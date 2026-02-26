@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import CoffeeCard from "../../components/common/CoffeeCard.component";
 import Filters from "../../components/common/Filters.component";
 import Pagination from "../../components/common/Pagination";
@@ -15,6 +16,8 @@ export default function CoffeesPage() {
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOption, setSortOption] = useState("");
+  const [searchParams] = useSearchParams();
+  const searchValue = searchParams.get("q") ?? "";
 
   useEffect(() => {
     const fetchCoffees = async () => {
@@ -31,6 +34,11 @@ export default function CoffeesPage() {
 
     fetchCoffees();
   }, []);
+
+  // Reset to page 1 whenever the URL search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchValue]);
 
   const sortCoffees = (list, option) => {
     const sorted = [...list];
@@ -104,7 +112,22 @@ export default function CoffeesPage() {
     setCurrentPage(1);
   };
 
-  const list = filteredCoffees;
+  const list = useMemo(() => {
+    const query = searchValue.trim().toLowerCase();
+    if (!query) return filteredCoffees;
+
+    return filteredCoffees.filter((coffee) => {
+      const haystack = [
+        coffee?.name ?? "",
+        coffee?.title ?? "",
+        coffee?.origin ?? "",
+      ]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(query);
+    });
+  }, [filteredCoffees, searchValue]);
+
   const totalPages = Math.ceil(list.length / ITEMS_PER_PAGE) || 1;
   const start = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedCoffees = list.slice(start, start + ITEMS_PER_PAGE);
