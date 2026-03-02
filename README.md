@@ -1,33 +1,47 @@
 # ☕ Gold Beans
 
-> A full-stack e-commerce web application for premium coffee and coffee machines, featuring subscription plans, order management, and a dedicated admin dashboard.
+![React](https://img.shields.io/badge/Frontend-React-blue)
+![Node.js](https://img.shields.io/badge/Backend-Node.js-green)
+![MongoDB](https://img.shields.io/badge/Database-MongoDB-darkgreen)
+![Express](https://img.shields.io/badge/Framework-Express-lightgrey)
 
----
 
-## 🌐 Live Demo
-
-> _Add your deployed URL here_
-
----
+A full-stack premium coffee e-commerce platform built with the MERN
+stack. The application supports one-time purchases, recurring
+subscription plans, secure authentication, and a complete admin
+dashboard.
 
 ## 📖 About The Project
 
-**Gold Beans** is a premium e-commerce platform built with the MERN stack. Customers can browse and purchase high-quality coffees and coffee machines, subscribe to recurring coffee delivery plans, and manage their profiles and order history. Admins have access to a dedicated dashboard to manage products, users, subscriptions, and orders.
+Gold Beans is a modern full-stack e-commerce web application designed
+for selling premium coffee and coffee machines with subscription
+capabilities.
 
-### Key Features
+The platform provides a complete shopping experience for customers and a
+powerful admin dashboard for managing products, users, orders, and
+subscriptions.
 
-- 🛒 Browse and purchase coffees and coffee machines
-- 📦 One-time orders and recurring subscription plans
-- 👤 User authentication (register, login, forgot/reset password, account activation)
-- 🧑‍💼 Admin dashboard for managing products, users, orders, and subscriptions
-- 🖼️ Image uploads for products and avatars
-- 📧 Email notifications
-- 🔐 JWT-based authentication & role-based access control
+## ✨ Features
 
----
+### 👤 User Features
+
+-   Secure registration and login (JWT authentication)
+-   Account activation and password reset via email
+-   Browse coffee products and coffee machines
+-   Add products to cart and place orders
+-   Subscribe to recurring coffee delivery plans
+-   View order history and active subscriptions
+-   Upload and update profile avatar
+-   Manage personal account information
+
+### 🧑‍💼 Admin Features
+
+-   Admin dashboard with full platform control
+-   Manage products, users, orders, and subscriptions
+-   Upload product images
 
 ## 🛠️ Tech Stack
-
+  
 | Layer | Technology |
 |---|---|
 | Frontend | React.js, Tailwind CSS |
@@ -36,11 +50,7 @@
 | Auth | JWT (JSON Web Tokens) |
 | File Uploads | Multer |
 | Email | Nodemailer |
-
----
-
 ## 📁 Project Structure
-
 ```
 Gold-Beans
 ├── backend
@@ -65,8 +75,12 @@ Gold-Beans
             ├── client      # Logged-in user pages
             └── public      # Public pages (Home, Coffees, Machines, Auth)
 ```
+## 🧠 Architecture
 
----
+Controller Layer → Handles HTTP requests\
+Service Layer → Business logic\
+Repository Layer → Database access\
+Model Layer → Database schemas
 
 ## 🚀 Getting Started
 
@@ -130,7 +144,8 @@ npm install
 Create a `.env` file in the `frontend/` directory and add:
 
 ```env
-REACT_APP_API_URL=http://localhost:5000/api
+REACT_APP_API_URL=http://localhost:5001/api
+REACT_APP_API_URLL=http://localhost:5001
 ```
 
 Start the frontend:
@@ -143,28 +158,45 @@ The app will be running at `http://localhost:3000`.
 
 ---
 
+
+### Backend
+
+cd backend\
+npm install\
+npm run dev
+
+### Frontend
+
+cd frontend\
+npm install\
+npm start
+
 ## 📸 Screenshots
 
-> _Add screenshots of your app here_
 
 | Home Page | Coffee Catalog | Admin Dashboard |
 |---|---|---|
-| ![Home](./screenshots/home.png) | ![Catalog](./screenshots/catalog.png) | ![Admin](./screenshots/admin.png) |
+| ![Home](./screenshots/HomePage.png) | ![Catalog](./screenshots/CoffeeCatalogue.png) | ![Admin](./screenshots/admin.png) |
 
----
+## 💡 Skills Demonstrated
+
+-   Full-stack MERN development\
+-   REST API design\
+-   Authentication and authorization\
+-   Database design\
+-   File uploads\
+-   Email integration\
+-   Clean architecture
+
 
 ## 👥 Authors
 
-> _Add your team members here_
+- [@RedaSatrallah](https://github.com/RedaSatrallah)
+- [@Amira-kilito](https://github.com/Amira-kilito)
+- [@Hajarjam](https://github.com/Hajarjam)
+- [@malakCH2003](https://github.com/malakCH2003)
+- [@morabitihoussam](https://github.com/morabitihoussam)
 
-- [@your-username](https://github.com/your-username)
-
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
-
----
+------------------------------------------------------------------------
 
 <p align="center">Made with ☕ by the Gold Beans team</p>
