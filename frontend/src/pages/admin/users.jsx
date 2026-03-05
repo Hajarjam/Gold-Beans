@@ -170,7 +170,7 @@ export default function Users() {
     <>
       <div className="px-4 sm:px-9 py-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <h1 className="text-2xl font-bold">Users (Admin + Client)</h1>
+          <h1 className="text-2xl font-bold">Users</h1>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5 w-full sm:w-auto">
             <div className="relative w-full sm:w-[220px]">

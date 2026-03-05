@@ -2,10 +2,39 @@ import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import PeachLayout from "../../components/layouts/PeachLayout";
 import Breadcrumb from "../../components/common/Breadcrumb";
-import { Coffee, Check } from "lucide-react";
+import { Coffee } from "lucide-react"; // optional if you want another icon
 import AuthGateModal from "../../components/AuthGateModal";
 import { useAuth } from "../../contexts/AuthProvider";
 import CartContext from "../../contexts/CartContext";
+
+/* Custom Icons */
+function BeanIcon(props) {
+  return (
+ <>
+ <img src="assets/Whole Bean.png  " className="w-5 h-5"></img>
+ </>
+  );
+}
+
+function GroundBeansIcon(props) {
+  // a bunch of little dots representing ground beans
+  return (
+    <svg
+      {...props}
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      className="w-5 h-5"
+    >
+      <circle cx="6" cy="7" r="1.5" />
+      <circle cx="10" cy="11" r="1.5" />
+      <circle cx="14" cy="8" r="1.5" />
+      <circle cx="18" cy="12" r="1.5" />
+      <circle cx="8" cy="15" r="1.5" />
+      <circle cx="12" cy="18" r="1.5" />
+      <circle cx="16" cy="15" r="1.5" />
+    </svg>
+  );
+}
 
 /* ---------- ROAST DATA (SMALL CARD IMAGES) ---------- */
 const ROASTS = [
@@ -35,7 +64,6 @@ const ROASTS = [
   },
 ];
 
-/* ---------- BIG LEFT IMAGES ---------- */
 const BIG_ROAST_IMAGES = {
   light: "/assets/lightroast.png",
   medium: "/assets/mediumroast.png",
@@ -56,12 +84,9 @@ export default function SubscriptionPage() {
 
   const productPrice = 18.99;
 
-  /* ---------- ADD TO CART ---------- */
   const handleAddToCart = () => {
     const isUserAuthenticated = isAuthenticated || Boolean(user);
-
     if (authLoading) return;
-
     if (!isUserAuthenticated) {
       setIsAuthGateOpen(true);
       return;
@@ -81,7 +106,6 @@ export default function SubscriptionPage() {
     };
 
     addToCart(subscriptionItem);
-
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   };
@@ -89,105 +113,89 @@ export default function SubscriptionPage() {
   return (
     <>
       <PeachLayout>
-      <div className="py-2 px-4 md:px-8 lg:px-12">
-        <Breadcrumb />
-      </div>
+        <div className="py-2 px-4 md:px-8 lg:px-12">
+          <Breadcrumb />
+        </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12 py-8 md:py-10">
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 lg:gap-10">
-          {/* LEFT — BIG IMAGE */}
-          <div>
-            <div className="rounded-lg overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12 py-8 md:py-10">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 lg:gap-10">
+            {/* LEFT */}
+            <div>
               <img
                 src={BIG_ROAST_IMAGES[selectedRoast.id]}
                 alt={selectedRoast.title}
-                className="w-full h-auto object-cover"
+                className="w-full h-auto rounded-lg object-cover"
               />
             </div>
-          </div>
 
-          {/* CENTER — DETAILS */}
-          <div className="space-y-8">
-            <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold font-instrument-serif text-charcoal mb-3">
+            {/* CENTER */}
+            <div className="space-y-8">
+              <h1 className="text-3xl font-bold font-instrument-serif text-charcoal">
                 {selectedRoast.title} Subscription
               </h1>
 
-              <span className="inline-block bg-peach-light text-charcoal text-xs px-3 py-1 rounded-full mb-4">
-                Up to 2 bags free
-              </span>
+              <ul className="space-y-2 text-sm text-dark-brown">
+                <li>✔ Freshly roasted by specialty roasters</li>
+                <li>✔ Flexible delivery & easy cancellation</li>
+                <li>✔ Save 10% on every delivery</li>
+              </ul>
 
-              <p className="text-sm text-dark-brown leading-relaxed">
-                Enjoy a curated selection of our best selling coffees,
-                freshly roasted and delivered straight to your door.
-              </p>
-            </div>
+              <div className="space-y-4">
+                {ROASTS.map((roast) => (
+                  <RoastCard
+                    key={roast.id}
+                    {...roast}
+                    active={selectedRoast.id === roast.id}
+                    onClick={() => setSelectedRoast(roast)}
+                  />
+                ))}
+              </div>
 
-            {/* BENEFITS */}
-            <ul className="space-y-2 text-sm text-dark-brown">
-              <li>✔ Freshly roasted by specialty roasters</li>
-              <li>✔ Flexible delivery & easy cancellation</li>
-              <li>✔ Save 10% on every delivery</li>
-            </ul>
+              {/* GRIND */}
+              <div>
+                <label className="block text-sm font-bold text-charcoal mb-2">
+                  Select Your Grind
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    onClick={() => setSelectedGrind("whole-bean")}
+                    className={`w-full px-4 py-2.5 rounded-lg border flex items-center justify-center gap-2
+                      ${
+                        selectedGrind === "whole-bean"
+                          ? "border-charcoal bg-white text-charcoal"
+                          : "border-transparent text-dark-brown hover:border-charcoal"
+                      }`}
+                  >
+                    <BeanIcon className="w-5 h-5" />
+                    Whole Bean
+                  </button>
 
-            {/* ROAST OPTIONS */}
-            <div className="space-y-4">
-              {ROASTS.map((roast) => (
-                <RoastCard
-                  key={roast.id}
-                  {...roast}
-                  active={selectedRoast.id === roast.id}
-                  onClick={() => setSelectedRoast(roast)}
-                />
-              ))}
-            </div>
-
-            {/* GRIND TYPE */}
-            <div>
-              <label className="block text-xs md:text-sm font-bold text-charcoal mb-2">
-                Select Your Grind
-              </label>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  onClick={() => setSelectedGrind("whole-bean")}
-                  className={`w-full px-4 py-2.5 rounded-lg border flex items-center justify-center gap-2
-                    ${
-                      selectedGrind === "whole-bean"
-                        ? "border-charcoal bg-white text-charcoal"
-                        : "border-transparent text-dark-brown hover:border-charcoal"
-                    }`}
-                >
-                  <Coffee className="w-4 h-4" />
-                  Whole Bean
-                </button>
-
-                <button
-                  onClick={() => setSelectedGrind("ground")}
-                  className={`w-full px-4 py-2.5 rounded-lg border flex items-center justify-center gap-2
-                    ${
-                      selectedGrind === "ground"
-                        ? "border-charcoal bg-white text-charcoal"
-                        : "border-transparent text-dark-brown hover:border-charcoal"
-                    }`}
-                >
-                  Ground
-                </button>
+                  <button
+                    onClick={() => setSelectedGrind("ground")}
+                    className={`w-full px-4 py-2.5 rounded-lg border flex items-center justify-center gap-2
+                      ${
+                        selectedGrind === "ground"
+                          ? "border-charcoal bg-white text-charcoal"
+                          : "border-transparent text-dark-brown hover:border-charcoal"
+                      }`}
+                  >
+                    <GroundBeansIcon className="w-5 h-5" />
+                    Ground Beans
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* RIGHT — SUBSCRIPTION CARD */}
-          <div className="bg-white rounded-lg border border-peach p-5 h-fit mt-0 xl:mt-10">
-            <div className="space-y-4">
-              <label className="flex items-center justify-between">
-                <span className="text-sm">Subscribe</span>
+            {/* RIGHT */}
+            <div className="bg-white rounded-lg border border-peach p-5 h-fit mt-10 xl:mt-0">
+              <label className="flex items-center justify-between text-sm">
+                <span>Subscribe</span>
                 <span className="font-semibold">
                   {(productPrice * 0.9).toFixed(2)}$
                 </span>
               </label>
 
-              <div>
+              <div className="mt-3">
                 <label className="text-xs text-dark-brown mb-1 block">
                   Deliver every
                 </label>
@@ -203,31 +211,23 @@ export default function SubscriptionPage() {
                 </select>
               </div>
 
-              {/* ADD TO CART INDICATOR */}
               <button
                 onClick={handleAddToCart}
                 disabled={added}
-                className={`w-full flex items-center justify-center gap-2 text-sm py-2.5 rounded-lg transition
+                className={`w-full mt-4 py-2.5 rounded-lg text-sm flex items-center justify-center gap-2
                   ${
                     added
                       ? "bg-green-600 text-white cursor-default"
                       : "bg-charcoal text-white hover:bg-brown"
                   }`}
               >
-                {added ? (
-                  <>
-                    <Check className="w-4 h-4" />
-                    Added to Cart
-                  </>
-                ) : (
-                  "Add to Cart"
-                )}
+                {added ? "Added to Cart" : "Add to Cart"}
               </button>
             </div>
           </div>
         </div>
-      </div>
       </PeachLayout>
+
       <AuthGateModal
         isOpen={isAuthGateOpen}
         onClose={() => setIsAuthGateOpen(false)}
@@ -238,30 +238,25 @@ export default function SubscriptionPage() {
   );
 }
 
-/* ---------- ROAST CARD ---------- */
 function RoastCard({ title, subtitle, description, image, active, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left border rounded-xl p-4 flex flex-col sm:flex-row gap-4 transition-all
+      className={`w-full text-left border rounded-xl p-4 flex gap-4 items-center
         ${
           active
             ? "border-charcoal bg-white shadow-sm"
-            : "border-peach-light bg-transparent hover:border-charcoal"
+            : "border-peach-light text-dark-brown hover:border-charcoal"
         }`}
     >
       <img
         src={image}
         alt={title}
-        className="w-16 h-16 sm:w-20 sm:h-20 object-contain flex-shrink-0"
+        className="w-20 h-20 object-contain"
       />
-
-      <div className="space-y-1">
+      <div>
         <h4 className="font-semibold text-charcoal">{title}</h4>
-        <p className="text-xs font-medium text-dark-brown">{subtitle}</p>
-        <p className="text-xs text-dark-brown leading-relaxed">
-          {description}
-        </p>
+        <p className="text-xs text-dark-brown">{subtitle}</p>
       </div>
     </button>
   );
