@@ -181,7 +181,7 @@ export default function HomePage() {
       <section className="bg-dark-brown 
             pt-12 sm:pt-16 md:pt-20 lg:pt-24 
             pb-32 sm:pb-24 md:pb-32 lg:pb-40 
-            mb-[-125px] sm:mb-[-130px] md:mb-[-145px] lg:mb-[-180px] 
+            mb-[-110px] md:mb-[-145px] lg:mb-[-180px] 
             relative clip-triangle">
 
     
@@ -297,7 +297,7 @@ export default function HomePage() {
 <div className="bg-peach pt-20 sm:pt-28 md:pt-40 lg:pt-56 pb-12 sm:pb-16 md:pb-20 lg:pb-24">
   
   {/* Title */}
-  <h2 className="text-center text-brown text-lg sm:text-xl md:text-2xl lg:text-3xl tracking-widest mb-8 sm:mb-10 md:mb-14 font-semibold px-4">
+  <h2 className=" text-center text-brown text-lg sm:text-xl md:text-2xl lg:text-3xl tracking-widest mb-8 sm:mb-10 md:mb-14 font-semibold px-4 pt-10">
     HOW IT WORKS ?
   </h2>
 

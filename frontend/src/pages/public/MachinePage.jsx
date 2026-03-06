@@ -168,7 +168,7 @@ export default function MachinePage() {
 
           {/* Machine Cards */}
           <section className="flex flex-col flex-1">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 md:grid-cols-3 gap-6 sm:items-center">
               {loading ? (
                 <p className="col-span-full text-center">Loading...</p>
               ) : list.length > 0 ? (

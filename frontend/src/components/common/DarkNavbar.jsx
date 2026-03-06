@@ -21,7 +21,7 @@ export default function DarkNavbar() {
   const handleLinkClick = () => setMobileMenuOpen(false);
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 text-brown px-4 sm:px-8 md:px-10 lg:px-12 py-2.5 flex items-center">
+    <nav className=" top-0 left-0 w-full z-50 text-brown px-4 sm:px-8 md:px-10 lg:px-12 py-2.5 flex items-center">
 
       {/* LEFT — Logo */}
       <div className="flex-shrink-0 cursor-pointer" onClick={() => navigate("/")}>
