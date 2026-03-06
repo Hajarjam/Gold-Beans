@@ -5,6 +5,7 @@ import PeachLayout from "../../components/layouts/PeachLayout";
 import Breadcrumb from "../../components/common/Breadcrumb";
 import AuthGateModal from "../../components/AuthGateModal";
 
+
 import publicApi from "../../api/publicApi";
 import { useAuth } from "../../contexts/AuthProvider";
 import { BreadcrumbContext } from "../../contexts/BreadcrumbContext";
@@ -31,6 +32,7 @@ export default function CoffeeDetailPage() {
   const [added, setAdded] = useState(false);
   const [isAuthGateOpen, setIsAuthGateOpen] = useState(false);
 
+  
   // Fetch product data
   useEffect(() => {
     const fetchProduct = async () => {
@@ -238,7 +240,8 @@ export default function CoffeeDetailPage() {
                               : "border-transparent bg-transparent text-dark-brown hover:border-charcoal"
                           }`}
                         >
-                          <Coffee className="w-3 md:w-4 h-3 md:h-4" />
+                             <img src="../../../assets/Whole Bean.png  " className="w-5 h-5"></img>
+
                           <span className="hidden sm:inline">Whole Bean</span>
                           <span className="sm:hidden">Whole</span>
                         </button>
